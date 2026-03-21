@@ -33,7 +33,7 @@ const HeroSection = () => {
 
         <div className="reveal reveal-d4 mt-16 flex items-center justify-center gap-8 md:gap-12 text-muted-foreground">
           {[
-            ["50+", "Destinations"],
+            ["🌍", "Worldwide"],
             ["AI", "Powered"],
             ["20+", "Languages"],
           ].map(([num, label]) => (
