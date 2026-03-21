@@ -84,6 +84,7 @@ export async function fetchAITravelPlan(form: FormData): Promise<Itinerary> {
       safetyLevel: plan.safetyLevel ?? "Unknown",
       bestTimeToVisit: plan.bestTimeToVisit ?? "Check local guides",
       crowdLevel: plan.crowdLevel ?? "Moderate",
+      ticketPrices: plan.ticketPrices ?? [],
     };
   } catch (err) {
     console.error("AI Travel Planner error:", err);

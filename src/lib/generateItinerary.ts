@@ -63,6 +63,15 @@ export interface WeatherInfo {
   country?: string;
 }
 
+export interface TicketPrice {
+  mode: string;
+  route: string;
+  price: string;
+  duration: string;
+  frequency: string;
+  tip: string;
+}
+
 export interface TransportEstimate {
   from: string;
   to: string;
@@ -89,6 +98,7 @@ export interface Itinerary {
   travelTips: string[];
   travelInsights: string[];
   transportEstimates: TransportEstimate[];
+  ticketPrices: TicketPrice[];
   safetyLevel: string;
   bestTimeToVisit: string;
   crowdLevel: string;
@@ -199,5 +209,6 @@ export function generateFallbackItinerary(form: FormData): Itinerary {
     safetyLevel: "Generally safe for tourists",
     bestTimeToVisit: "Check seasonal guides",
     crowdLevel: "Moderate",
+    ticketPrices: [],
   };
 }

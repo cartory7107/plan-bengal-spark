@@ -23,7 +23,8 @@ export type TranslationKey =
   | "cheapestHotel" | "bestValueHotel" | "luxuryHotel" | "popularHotel" | "historicArea"
   | "minBudget" | "maxBudget"
   | "nearbyPlaces" | "searching" | "discoverPlaces" | "nearbyHotels" | "nearbyAttractions"
-  | "travelInsights" | "searchInsights";
+  | "travelInsights" | "searchInsights"
+  | "ticketPricesTitle";
 
 type Translations = Record<string, Record<TranslationKey, string>>;
 
@@ -117,6 +118,7 @@ const en: Record<TranslationKey, string> = {
   nearbyAttractions: "Tourist Attractions",
   travelInsights: "Travel Insights",
   searchInsights: "Search Tips & Guides",
+  ticketPricesTitle: "Ticket & Transport Prices",
 };
 
 const bn: Record<TranslationKey, string> = {
@@ -209,6 +211,7 @@ const bn: Record<TranslationKey, string> = {
   nearbyAttractions: "পর্যটন আকর্ষণ",
   travelInsights: "ভ্রমণ তথ্য",
   searchInsights: "টিপস ও গাইড খুঁজুন",
+  ticketPricesTitle: "টিকেট ও পরিবহন মূল্য",
 };
 
 // Generate other languages from English template with key translations
