@@ -28,7 +28,7 @@ serve(async (req) => {
     if (near) params.set('near', near);
     if (categories) params.set('categories', categories);
 
-    const fsqUrl = `https://api.foursquare.com/v3/places/search?${params.toString()}`;
+    const fsqUrl = `https://places-api.foursquare.com/places/search?${params.toString()}`;
 
     const response = await fetch(fsqUrl, {
       headers: {
