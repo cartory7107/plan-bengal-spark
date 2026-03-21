@@ -72,7 +72,7 @@ const AutocompleteField = ({ label, value, onChange, placeholder, inputRef, isAc
 const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
   const [form, setForm] = useState<FormData>({
     from: "", destination: "", days: 3, season: "winter", budget: "500",
-    travelType: "solo", transport: "auto", hotel: "auto", food: "local", language: "English",
+    currency: "USD", travelType: "solo", transport: "auto", hotel: "auto", food: "local", language: "English",
   });
   const [activeField, setActiveField] = useState<"from" | "destination" | null>(null);
   const fromRef = useRef<HTMLInputElement>(null);
