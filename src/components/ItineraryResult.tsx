@@ -125,7 +125,7 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
         {/* Packing Checklist */}
         <Section icon={Backpack} title={t(language, "packingTitle")}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-            {data.packingList.map((item, i) => (
+            {packingList.map((item, i) => (
               <label key={i} className="flex items-center gap-2 text-sm text-muted-foreground py-1">
                 <input type="checkbox" className="rounded border-border accent-primary w-4 h-4" />
                 {item}
