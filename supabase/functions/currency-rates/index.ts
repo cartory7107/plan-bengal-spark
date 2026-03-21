@@ -25,8 +25,21 @@ serve(async (req) => {
 
     const data = await res.json();
 
-    // frankfurter doesn't include the base currency in rates, add it
+    // frankfurter doesn't include base or some currencies - add approximations for unsupported ones
     const rates: Record<string, number> = { [base]: 1, ...data.rates };
+
+    // Add commonly requested currencies not in frankfurter (approximate from USD cross-rates)
+    const usdRate = rates["USD"] || 1;
+    const fallbacks: Record<string, number> = {
+      BDT: 121.5, AED: 3.6725, PKR: 278.5, EGP: 50.5,
+      NGN: 1550, SAR: 3.75, TWD: 32.5, VND: 25450,
+    };
+    for (const [code, approxUsd] of Object.entries(fallbacks)) {
+      if (!rates[code]) {
+        rates[code] = approxUsd * usdRate;
+      }
+    }
+
 
     return new Response(
       JSON.stringify({ base: data.base, date: data.date, rates }),
