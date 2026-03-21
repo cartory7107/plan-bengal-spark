@@ -1,4 +1,4 @@
-import { MapPin, Hotel, Utensils, Ticket, Star, DollarSign, PartyPopper, Eye } from "lucide-react";
+import { MapPin, Hotel, Utensils, Ticket, Star, DollarSign, PartyPopper, Eye, Lightbulb } from "lucide-react";
 
 export interface Itinerary {
   destination: string;
@@ -10,6 +10,7 @@ export interface Itinerary {
   attractions: string[];
   costs: { label: string; amount: string }[];
   total: string;
+  seasonTips?: string[];
 }
 
 const Section = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
