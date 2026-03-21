@@ -21,7 +21,8 @@ export type TranslationKey =
   | "downloadPdf" | "downloadCsv" | "downloadImage" | "downloadTitle"
   | "footerTagline" | "madeBy"
   | "cheapestHotel" | "bestValueHotel" | "luxuryHotel" | "popularHotel" | "historicArea"
-  | "minBudget" | "maxBudget";
+  | "minBudget" | "maxBudget"
+  | "nearbyPlaces" | "searching" | "discoverPlaces" | "nearbyHotels" | "nearbyAttractions";
 
 type Translations = Record<string, Record<TranslationKey, string>>;
 
