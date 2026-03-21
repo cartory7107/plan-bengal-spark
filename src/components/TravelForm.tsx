@@ -101,20 +101,39 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
           className="glass-card-solid rounded-3xl p-6 md:p-10 space-y-8"
         >
           {/* Destination */}
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <MapPin className="w-4 h-4 text-primary" />
               Where are you traveling?
             </label>
-            <select
-              value={form.destination}
-              onChange={(e) => set("destination", e.target.value)}
-              className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-            >
-              {DESTINATIONS.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={form.destination}
+                onChange={(e) => { set("destination", e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Type any city or destination worldwide..."
+                className="w-full rounded-xl border border-border bg-white/70 pl-10 pr-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+              />
+            </div>
+            {showSuggestions && filteredDestinations.length > 0 && (
+              <div className="absolute z-20 top-full left-0 right-0 mt-1 glass-card-solid rounded-xl overflow-hidden shadow-xl max-h-64 overflow-y-auto">
+                {filteredDestinations.map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onMouseDown={() => { set("destination", d); setShowSuggestions(false); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-primary/10 transition-colors flex items-center gap-2"
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-primary/60 shrink-0" />
+                    {d}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Days */}
