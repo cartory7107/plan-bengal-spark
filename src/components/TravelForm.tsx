@@ -94,6 +94,23 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
           onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}
           className="glass-card-solid rounded-3xl p-6 md:p-10 space-y-8"
         >
+          {/* Language */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Globe className="w-4 h-4 text-primary" />
+              Language
+            </label>
+            <select
+              value={form.language}
+              onChange={(e) => set("language", e.target.value)}
+              className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+          </div>
+
           {/* From & To */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* From */}
