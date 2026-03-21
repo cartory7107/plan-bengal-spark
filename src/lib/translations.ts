@@ -211,6 +211,7 @@ const bn: Record<TranslationKey, string> = {
   nearbyAttractions: "পর্যটন আকর্ষণ",
   travelInsights: "ভ্রমণ তথ্য",
   searchInsights: "টিপস ও গাইড খুঁজুন",
+  ticketPricesTitle: "টিকেট ও পরিবহন মূল্য",
 };
 
 // Generate other languages from English template with key translations
