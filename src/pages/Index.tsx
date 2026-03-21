@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
