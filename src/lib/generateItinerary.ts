@@ -63,6 +63,15 @@ export interface WeatherInfo {
   country?: string;
 }
 
+export interface TicketPrice {
+  mode: string;
+  route: string;
+  price: string;
+  duration: string;
+  frequency: string;
+  tip: string;
+}
+
 export interface TransportEstimate {
   from: string;
   to: string;
