@@ -2,6 +2,7 @@ import { MapPin, Hotel, Utensils, Star, DollarSign, PartyPopper, Eye, Lightbulb,
 import { t } from "@/lib/translations";
 import type { Itinerary, HotelCard } from "@/lib/generateItinerary";
 import NearbyPlaces from "@/components/NearbyPlaces";
+import TravelInsights from "@/components/TravelInsights";
 
 const Section = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
   <div className="glass-card rounded-2xl p-5 md:p-6 space-y-3">
