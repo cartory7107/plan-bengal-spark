@@ -18,7 +18,6 @@ serve(async (req) => {
 
     const { query, near, categories, limit = 10 } = await req.json();
 
-    // Build Foursquare Places API URL (new endpoint)
     const params = new URLSearchParams({
       limit: String(limit),
       sort: 'RELEVANCE',
@@ -28,46 +27,37 @@ serve(async (req) => {
     if (near) params.set('near', near);
     if (categories) params.set('categories', categories);
 
-    // Use the new places-api host
-    const fsqUrl = `https://places-api.foursquare.com/places/search?${params.toString()}`;
+    // Try new places-api endpoint first (no Bearer prefix)
+    const newUrl = `https://places-api.foursquare.com/places/search?${params.toString()}`;
+    console.log('Trying new API:', newUrl);
 
-    console.log('Fetching:', fsqUrl);
-
-    const response = await fetch(fsqUrl, {
+    let response = await fetch(newUrl, {
       headers: {
-        'Authorization': `Bearer ${FOURSQUARE_API_KEY}`,
+        'Authorization': FOURSQUARE_API_KEY,
         'Accept': 'application/json',
         'X-Places-Api-Version': '2025-06-17',
       },
     });
 
-    const responseText = await response.text();
-    console.log('Response status:', response.status);
+    let responseText = await response.text();
+    console.log('New API status:', response.status);
 
+    // If new API fails, try with Bearer prefix
     if (!response.ok) {
-      // Fallback: try the legacy v3 endpoint
-      console.log('New API failed, trying legacy v3...');
-      const legacyUrl = `https://api.foursquare.com/v3/places/search?${params.toString()}`;
-      
-      const legacyResponse = await fetch(legacyUrl, {
+      console.log('Retrying new API with Bearer prefix...');
+      response = await fetch(newUrl, {
         headers: {
-          'Authorization': FOURSQUARE_API_KEY,
+          'Authorization': `Bearer ${FOURSQUARE_API_KEY}`,
           'Accept': 'application/json',
+          'X-Places-Api-Version': '2025-06-17',
         },
       });
+      responseText = await response.text();
+      console.log('Bearer attempt status:', response.status);
+    }
 
-      const legacyText = await legacyResponse.text();
-      console.log('Legacy response status:', legacyResponse.status);
-
-      if (!legacyResponse.ok) {
-        throw new Error(`Foursquare API error [${legacyResponse.status}]: ${legacyText}`);
-      }
-
-      const data = JSON.parse(legacyText);
-      const places = transformPlaces(data.results || []);
-      return new Response(JSON.stringify({ places }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (!response.ok) {
+      throw new Error(`Foursquare API error [${response.status}]: ${responseText}`);
     }
 
     const data = JSON.parse(responseText);
