@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Sparkles, Search } from "lucide-react";
 import { WORLD_DESTINATIONS } from "@/data/destinations";
 import { t } from "@/lib/translations";
-import type { FormData } from "@/lib/generateItinerary";
+import { CURRENCIES, type FormData } from "@/lib/generateItinerary";
 
 interface Props {
   onSubmit: (data: FormData) => void;
