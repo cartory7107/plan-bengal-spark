@@ -6,124 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const travelPlanSchema = {
-  name: "generate_travel_plan",
-  description: "Generate a complete dynamic travel plan with destination-specific data",
-  parameters: {
-    type: "object",
-    properties: {
-      hotels: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            category: { type: "string", enum: ["budget", "mid-range", "luxury", "popular", "historic"] },
-            pricePerNight: { type: "string" },
-            rating: { type: "number" },
-            distance: { type: "string" },
-          },
-          required: ["name", "category", "pricePerNight", "rating", "distance"],
-        },
-      },
-      restaurants: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            rating: { type: "number" },
-            cuisine: { type: "string" },
-            priceLevel: { type: "string", enum: ["$", "$$", "$$$", "$$$$"] },
-            distance: { type: "string" },
-          },
-          required: ["name", "rating", "cuisine", "priceLevel", "distance"],
-        },
-      },
-      attractions: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            description: { type: "string" },
-            distance: { type: "string" },
-            category: { type: "string" },
-          },
-          required: ["name", "description", "distance", "category"],
-        },
-      },
-      hiddenSpots: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            description: { type: "string" },
-            distance: { type: "string" },
-            category: { type: "string" },
-          },
-          required: ["name", "description", "distance", "category"],
-        },
-      },
-      days: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            day: { type: "number" },
-            title: { type: "string" },
-            activities: { type: "array", items: { type: "string" } },
-          },
-          required: ["day", "title", "activities"],
-        },
-      },
-      costs: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            label: { type: "string" },
-            amount: { type: "string" },
-          },
-          required: ["label", "amount"],
-        },
-      },
-      total: { type: "string" },
-      minBudget: { type: "string" },
-      maxBudget: { type: "string" },
-      transport: { type: "string" },
-      seasonTips: { type: "array", items: { type: "string" } },
-      packingList: { type: "array", items: { type: "string" } },
-      travelTips: { type: "array", items: { type: "string" } },
-      travelInsights: { type: "array", items: { type: "string" } },
-      transportEstimates: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            from: { type: "string" },
-            to: { type: "string" },
-            distance: { type: "string" },
-            duration: { type: "string" },
-            suggestion: { type: "string" },
-          },
-          required: ["from", "to", "distance", "duration", "suggestion"],
-        },
-      },
-      safetyLevel: { type: "string" },
-      bestTimeToVisit: { type: "string" },
-      crowdLevel: { type: "string" },
-    },
-    required: [
-      "hotels", "restaurants", "attractions", "hiddenSpots", "days", "costs",
-      "total", "minBudget", "maxBudget", "transport", "seasonTips", "packingList",
-      "travelTips", "travelInsights", "transportEstimates", "safetyLevel",
-      "bestTimeToVisit", "crowdLevel",
-    ],
-  },
-};
-
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -134,44 +16,48 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are an expert travel planner with deep knowledge of destinations worldwide. Generate REALISTIC, ACCURATE, DESTINATION-SPECIFIC travel data. 
+    const systemPrompt = `You are an expert travel planner. Generate a COMPLETE travel plan as a valid JSON object. 
 
-CRITICAL RULES:
-- Hotel prices MUST reflect ACTUAL local pricing for the destination. A budget hotel in Dhaka costs $20-40/night while in NYC it costs $90-150/night.
-- Restaurant names should be REAL popular restaurants in the destination or highly realistic names.
-- Attractions MUST be REAL landmarks, places, and sites in the destination city.
-- Hidden spots should be genuine lesser-known places locals would recommend.
-- Cost breakdowns must reflect the actual cost of living in the destination.
-- All prices must be in ${currency}.
-- The itinerary should be practical and follow logical geographic routes.
-- Packing list must consider the destination's climate, culture, and whether the trip is domestic or international.
-- If traveling from "${from}" to "${destination}", determine if it's domestic or international. If international, include passport in packing list.
-- Generate exactly ${days} days of itinerary.
-- Respond in ${language || "English"} language for all text content.`;
+CRITICAL: Your entire response must be a single valid JSON object with no extra text, no markdown, no code blocks.
 
-    const userPrompt = `Generate a complete travel plan:
-- From: ${from}
-- Destination: ${destination}
-- Duration: ${days} days
-- Season/Event: ${season}
-- Budget: ${currency} ${budget}
-- Travel Type: ${travelType}
-- Transport Preference: ${transport}
-- Hotel Preference: ${hotel}
-- Food Preference: ${food}
+All data must be REALISTIC and DESTINATION-SPECIFIC:
+- Hotel prices must reflect ACTUAL local pricing (budget hotel in Dhaka ~$20-40/night, NYC ~$90-150/night)
+- Restaurant names should be REAL or highly realistic for the destination
+- Attractions must be REAL landmarks in the destination
+- Costs must reflect actual cost of living
+- All prices in ${currency}
+- Generate exactly ${days} days of itinerary
+- Determine if ${from} to ${destination} is domestic or international for packing list
+- Respond in ${language || "English"} for all text`;
 
-Generate:
-- 5 hotel suggestions (budget, mid-range, luxury, popular, historic) with REAL local prices
-- 6 restaurant suggestions with REAL names and cuisine types
-- 6 top attractions (REAL landmarks in ${destination})
-- 4 hidden gems/spots locals love
-- Day-by-day itinerary for all ${days} days
-- Detailed cost breakdown in ${currency}
-- Smart packing checklist (consider domestic vs international, weather, culture)
-- 5 destination-specific travel tips
-- 5 travel insights (best time, crowd level, safety, local events)
-- Transport estimates from airport/station to hotels and attractions
-- Safety level, best time to visit, and crowd level assessment`;
+    const userPrompt = `Generate a travel plan JSON for:
+From: ${from} → Destination: ${destination}
+Duration: ${days} days | Season: ${season} | Budget: ${currency} ${budget}
+Travel: ${travelType} | Transport: ${transport} | Hotel: ${hotel} | Food: ${food}
+
+Return this exact JSON structure:
+{
+  "hotels": [{"name":"string","category":"budget|mid-range|luxury|popular|historic","pricePerNight":"string","rating":4.5,"distance":"string"}],
+  "restaurants": [{"name":"string","rating":4.5,"cuisine":"string","priceLevel":"$|$$|$$$|$$$$","distance":"string"}],
+  "attractions": [{"name":"string","description":"string","distance":"string","category":"string"}],
+  "hiddenSpots": [{"name":"string","description":"string","distance":"string","category":"string"}],
+  "days": [{"day":1,"title":"string","activities":["string"]}],
+  "costs": [{"label":"string","amount":"string"}],
+  "total": "string",
+  "minBudget": "string",
+  "maxBudget": "string",
+  "transport": "string",
+  "seasonTips": ["string"],
+  "packingList": ["string"],
+  "travelTips": ["string"],
+  "travelInsights": ["string"],
+  "transportEstimates": [{"from":"string","to":"string","distance":"string","duration":"string","suggestion":"string"}],
+  "safetyLevel": "string",
+  "bestTimeToVisit": "string",
+  "crowdLevel": "string"
+}
+
+Generate 5 hotels, 6 restaurants, 6 attractions, 4 hidden spots, ${days} day plans, 6 cost items, 10+ packing items, 5 travel tips, 5 insights, 3+ transport estimates.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -185,46 +71,61 @@ Generate:
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        tools: [{ type: "function", function: travelPlanSchema }],
-        tool_choice: { type: "function", function: { name: "generate_travel_plan" } },
+        response_format: { type: "json_object" },
       }),
     });
 
     if (!response.ok) {
       const errText = await response.text();
+      console.error("AI gateway error:", response.status, errText);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds in Settings." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      console.error("AI gateway error:", response.status, errText);
       throw new Error(`AI gateway error [${response.status}]`);
     }
 
     const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    console.log("AI response keys:", Object.keys(data));
+    
+    const content = data.choices?.[0]?.message?.content;
+    console.log("Content type:", typeof content, "length:", content?.length);
 
-    if (!toolCall?.function?.arguments) {
-      throw new Error("AI did not return structured travel plan data");
+    if (!content) {
+      // Try tool_calls format
+      const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+      if (toolCall?.function?.arguments) {
+        const plan = typeof toolCall.function.arguments === "string"
+          ? JSON.parse(toolCall.function.arguments)
+          : toolCall.function.arguments;
+        return new Response(JSON.stringify({ success: true, plan }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw new Error("AI did not return content");
     }
 
-    let travelPlan;
+    // Parse JSON from content - handle markdown code blocks
+    let jsonStr = content.trim();
+    if (jsonStr.startsWith("```")) {
+      jsonStr = jsonStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+    }
+    
+    let plan;
     try {
-      travelPlan = typeof toolCall.function.arguments === "string"
-        ? JSON.parse(toolCall.function.arguments)
-        : toolCall.function.arguments;
-    } catch {
-      throw new Error("Failed to parse AI response");
+      plan = JSON.parse(jsonStr);
+    } catch (parseErr) {
+      console.error("JSON parse error:", parseErr, "Content:", jsonStr.substring(0, 500));
+      throw new Error("Failed to parse AI response as JSON");
     }
 
-    return new Response(JSON.stringify({ success: true, plan: travelPlan }), {
+    return new Response(JSON.stringify({ success: true, plan }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
