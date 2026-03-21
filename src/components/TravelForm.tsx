@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Globe, Sparkles } from "lucide-react";
+import { useState, useRef } from "react";
+import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Globe, Sparkles, Search } from "lucide-react";
 
 const LANGUAGES = [
   "English","Bangla","Hindi","Urdu","Arabic","Spanish","French","German","Chinese",
@@ -7,7 +7,16 @@ const LANGUAGES = [
   "Thai","Vietnamese","Dutch"
 ];
 
-const DESTINATIONS = ["Cox's Bazar","Sundarbans","Sylhet","Bandarban","Rangamati","Saint Martin","Kuakata","Sajek Valley","Dhaka","Chittagong"];
+const POPULAR_DESTINATIONS = [
+  "Cox's Bazar, Bangladesh","Sundarbans, Bangladesh","Sylhet, Bangladesh","Bandarban, Bangladesh",
+  "Saint Martin, Bangladesh","Paris, France","Tokyo, Japan","New York, USA","Dubai, UAE",
+  "Istanbul, Turkey","Bangkok, Thailand","Rome, Italy","London, UK","Barcelona, Spain",
+  "Bali, Indonesia","Maldives","Singapore","Kuala Lumpur, Malaysia","Seoul, South Korea",
+  "Cairo, Egypt","Sydney, Australia","Rio de Janeiro, Brazil","Cape Town, South Africa",
+  "Santorini, Greece","Marrakech, Morocco","Phuket, Thailand","Hanoi, Vietnam",
+  "Petra, Jordan","Machu Picchu, Peru","Reykjavik, Iceland","Zurich, Switzerland",
+  "Prague, Czech Republic","Amsterdam, Netherlands","Lisbon, Portugal","Havana, Cuba",
+];
 
 interface FormData {
   destination: string;
