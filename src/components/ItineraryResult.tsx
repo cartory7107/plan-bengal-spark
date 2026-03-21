@@ -159,9 +159,9 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
         </Section>
 
         {/* Season Tips */}
-        {data.seasonTips.length > 0 && (
+        {seasonTips.length > 0 && (
           <Section icon={Lightbulb} title={t(language, "tipsTitle")}>
-            <ul className="space-y-1">{data.seasonTips.map((tip, i) => <li key={i} className="text-sm text-muted-foreground">💡 {tip}</li>)}</ul>
+            <ul className="space-y-1">{seasonTips.map((tip, i) => <li key={i} className="text-sm text-muted-foreground">💡 {tip}</li>)}</ul>
           </Section>
         )}
 
