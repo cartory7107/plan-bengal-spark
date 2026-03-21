@@ -11,63 +11,62 @@ serve(async (req) => {
   }
 
   try {
-    const FOURSQUARE_API_KEY = Deno.env.get('FOURSQUARE_API_KEY');
-    if (!FOURSQUARE_API_KEY) {
-      throw new Error('FOURSQUARE_API_KEY is not configured');
+    const { near, query, categories, limit = 10 } = await req.json();
+
+    if (!near) {
+      throw new Error('Missing "near" parameter');
     }
 
-    const { query, near, categories, limit = 10 } = await req.json();
+    // Determine search query based on request type
+    let searchQuery = '';
+    const isHotel = categories === '19014' || (query && query.toLowerCase().includes('hotel'));
+    const isTourist = query && (query.toLowerCase().includes('tourist') || query.toLowerCase().includes('landmark') || query.toLowerCase().includes('attraction'));
 
-    const params = new URLSearchParams({
-      limit: String(limit),
-      sort: 'RELEVANCE',
-    });
+    if (isHotel) {
+      searchQuery = `hotel in ${near}`;
+    } else if (isTourist) {
+      searchQuery = `tourist attraction in ${near}`;
+    } else {
+      searchQuery = query ? `${query} in ${near}` : near;
+    }
 
-    if (query) params.set('query', query);
-    if (near) params.set('near', near);
-    if (categories) params.set('categories', categories);
+    // Use Nominatim search (free, no API key)
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=${limit}&addressdetails=1&extratags=1`;
+    console.log('Searching:', url);
 
-    // Try new places-api endpoint first (no Bearer prefix)
-    const newUrl = `https://places-api.foursquare.com/places/search?${params.toString()}`;
-    console.log('Trying new API:', newUrl);
-
-    let response = await fetch(newUrl, {
+    const response = await fetch(url, {
       headers: {
-        'Authorization': FOURSQUARE_API_KEY,
+        'User-Agent': 'CartoryTravelAI/1.0',
         'Accept': 'application/json',
-        'X-Places-Api-Version': '2025-06-17',
       },
     });
 
-    let responseText = await response.text();
-    console.log('New API status:', response.status);
-
-    // If new API fails, try with Bearer prefix
+    const text = await response.text();
     if (!response.ok) {
-      console.log('Retrying new API with Bearer prefix...');
-      response = await fetch(newUrl, {
-        headers: {
-          'Authorization': `Bearer ${FOURSQUARE_API_KEY}`,
-          'Accept': 'application/json',
-          'X-Places-Api-Version': '2025-06-17',
-        },
-      });
-      responseText = await response.text();
-      console.log('Bearer attempt status:', response.status);
+      throw new Error(`Nominatim error [${response.status}]: ${text}`);
     }
 
-    if (!response.ok) {
-      throw new Error(`Foursquare API error [${response.status}]: ${responseText}`);
-    }
+    const results = JSON.parse(text);
 
-    const data = JSON.parse(responseText);
-    const places = transformPlaces(data.results || []);
+    const places = results
+      .filter((r: any) => r.display_name)
+      .map((place: any) => ({
+        id: String(place.place_id),
+        name: place.display_name.split(',')[0],
+        address: place.display_name.split(',').slice(1, 3).join(',').trim(),
+        city: place.address?.city || place.address?.town || place.address?.village || '',
+        country: place.address?.country || '',
+        lat: parseFloat(place.lat),
+        lng: parseFloat(place.lon),
+        categories: [place.type?.replace(/_/g, ' ')].filter(Boolean),
+        distance: undefined,
+      }));
 
     return new Response(JSON.stringify({ places }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Foursquare places error:', error);
+    console.error('Places error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
@@ -75,17 +74,3 @@ serve(async (req) => {
     });
   }
 });
-
-function transformPlaces(results: any[]) {
-  return results.map((place: any) => ({
-    id: place.fsq_id || place.id,
-    name: place.name,
-    address: place.location?.formatted_address || place.location?.address || '',
-    city: place.location?.locality || '',
-    country: place.location?.country || '',
-    lat: place.geocodes?.main?.latitude,
-    lng: place.geocodes?.main?.longitude,
-    categories: (place.categories || []).map((c: any) => c.name),
-    distance: place.distance,
-  }));
-}
