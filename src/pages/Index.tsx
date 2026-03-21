@@ -3,9 +3,9 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TravelForm from "@/components/TravelForm";
-import ItineraryResult, { type Itinerary } from "@/components/ItineraryResult";
+import ItineraryResult from "@/components/ItineraryResult";
 import Footer from "@/components/Footer";
-import { generateItinerary } from "@/lib/generateItinerary";
+import { generateItinerary, type Itinerary, type FormData } from "@/lib/generateItinerary";
 
 const Index = () => {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
@@ -13,10 +13,10 @@ const Index = () => {
   const [language, setLanguage] = useState("English");
   const resultRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = async (form: any) => {
+  const handleSubmit = async (form: FormData) => {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1500));
-    const result = generateItinerary({ ...form, language });
+    const result = generateItinerary(form);
     setItinerary(result);
     setLoading(false);
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);

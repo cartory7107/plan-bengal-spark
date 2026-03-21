@@ -24,8 +24,7 @@ const HeroSection = ({ language = "English" }: { language?: string }) => {
           {t(language, "heroSubtitle")}
         </p>
 
-        <a
-          href="#planner"
+        <a href="#planner"
           className="reveal reveal-d3 inline-flex items-center gap-2.5 gradient-bg text-primary-foreground font-bold text-lg px-8 py-4 rounded-2xl shadow-xl shadow-primary/25 transition-all duration-200 hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.97]"
         >
           <Sparkles className="w-5 h-5" />
