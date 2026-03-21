@@ -20,18 +20,23 @@ serve(async (req) => {
 
 CRITICAL: Your entire response must be a single valid JSON object with no extra text, no markdown, no code blocks.
 
+IMPORTANT: Focus ALL suggestions on the DESTINATION (${destination}), NOT the departure city (${from}).
+- ALL hotels, restaurants, attractions, hidden spots, ticket prices, and transport must be in/around ${destination}
+- The departure city "${from}" is ONLY used to determine: transport mode to reach ${destination}, whether trip is domestic/international, and packing needs
+- Never show hotels/restaurants/attractions from the departure city
+
 All data must be REALISTIC and DESTINATION-SPECIFIC:
 - Hotel prices must reflect ACTUAL local pricing (budget hotel in Dhaka ~$20-40/night, NYC ~$90-150/night)
-- Restaurant names should be REAL or highly realistic for the destination
-- Attractions must be REAL landmarks in the destination
-- Costs must reflect actual cost of living
+- Restaurant names should be REAL or highly realistic for ${destination}
+- Attractions must be REAL landmarks in ${destination}
+- Costs must reflect actual cost of living in ${destination}
 - All prices in ${currency}
 - Generate exactly ${days} days of itinerary
 - Determine if ${from} to ${destination} is domestic or international for packing list
 - Respond in ${language || "English"} for all text`;
 
-    const userPrompt = `Generate a travel plan JSON for:
-From: ${from} → Destination: ${destination}
+    const userPrompt = `Generate a travel plan JSON for visiting ${destination}.
+Departing from: ${from} (only relevant for transport to get there and domestic/international check)
 Duration: ${days} days | Season: ${season} | Budget: ${currency} ${budget}
 Travel: ${travelType} | Transport: ${transport} | Hotel: ${hotel} | Food: ${food}
 
