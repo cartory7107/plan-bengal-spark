@@ -1,6 +1,47 @@
-import type { Itinerary } from "@/components/ItineraryResult";
+export interface ItineraryDay {
+  day: number;
+  title: string;
+  activities: string[];
+}
 
-interface FormData {
+export interface CostItem {
+  label: string;
+  amount: string;
+}
+
+export interface HotelCard {
+  name: string;
+  category: string;
+  priceRange: string;
+  rating: number;
+  distance: string;
+}
+
+export interface WeatherInfo {
+  temperature: string;
+  rainChance: string;
+  warning: string;
+}
+
+export interface Itinerary {
+  destination: string;
+  days: ItineraryDay[];
+  transport: string;
+  hotels: HotelCard[];
+  restaurants: string[];
+  hiddenSpots: string[];
+  attractions: string[];
+  costs: CostItem[];
+  total: string;
+  minBudget: string;
+  maxBudget: string;
+  seasonTips: string[];
+  weather: WeatherInfo;
+  packingList: string[];
+}
+
+export interface FormData {
+  from: string;
   destination: string;
   days: number;
   season: string;
@@ -12,102 +53,146 @@ interface FormData {
   language: string;
 }
 
-const budgetMultiplier: Record<string, number> = { low: 1, standard: 1.8, premium: 3.2 };
-
-// Generic activity templates that work for any destination worldwide
-const activityTemplates = [
-  (dest: string) => [`Arrive at ${dest} and check into hotel`, `Explore the city center and nearby landmarks`, `Evening walk and local street food experience`],
-  (dest: string) => [`Visit the most popular tourist attraction in ${dest}`, `Lunch at a highly-rated local restaurant`, `Explore historical or cultural sites nearby`],
-  (dest: string) => [`Day trip to a scenic spot near ${dest}`, `Photography and sightseeing`, `Try local specialty cuisine for dinner`],
-  (dest: string) => [`Visit local markets and artisan shops in ${dest}`, `Explore a museum, temple, or natural landmark`, `Sunset viewing at a scenic point`],
-  (dest: string) => [`Adventure activity (hiking, water sports, or tour)`, `Visit a hidden gem recommended by locals`, `Evening cultural show or nightlife`],
-  (dest: string) => [`Relaxation day — spa, beach, or park in ${dest}`, `Souvenir shopping at local markets`, `Farewell dinner at a top restaurant`],
+const activityPool = [
+  (d: string) => [`Arrive at ${d}, check into hotel`, `Explore the city center`, `Evening walk & local street food`],
+  (d: string) => [`Visit the top tourist attraction in ${d}`, `Lunch at a popular local restaurant`, `Explore historical or cultural sites`],
+  (d: string) => [`Day trip to a scenic spot near ${d}`, `Photography & sightseeing`, `Try local specialty cuisine for dinner`],
+  (d: string) => [`Visit local markets and artisan shops`, `Explore a museum, temple, or landmark`, `Sunset viewing at a scenic point`],
+  (d: string) => [`Adventure activity — hiking, water sports, or tour`, `Visit a hidden gem recommended by locals`, `Evening cultural show or nightlife`],
+  (d: string) => [`Relaxation day — spa, beach, or park`, `Souvenir shopping at local markets`, `Farewell dinner at a top restaurant`],
+  (d: string) => [`Visit a nature reserve or botanical garden near ${d}`, `Local cooking class or food tour`, `Rooftop dining experience`],
+  (d: string) => [`Explore ${d}'s art district or galleries`, `Boat ride or waterfront experience`, `Night market exploration`],
+  (d: string) => [`Cycling tour around ${d}`, `Visit a local festival or event`, `Traditional music or dance performance`],
+  (d: string) => [`Mountain or hill viewpoint excursion`, `Visit an archaeological or heritage site`, `Stargazing or evening bonfire`],
 ];
 
-const dayTitles = [
-  (dest: string) => `Arrival at ${dest}`,
-  (dest: string) => `Iconic ${dest} Highlights`,
-  (dest: string) => `Day Trip & Exploration`,
-  (dest: string) => `Culture & Markets`,
-  (dest: string) => `Adventure Day`,
-  (dest: string) => `Relax & Explore`,
-  (dest: string) => `Departure from ${dest}`,
+const titlePool = [
+  (d: string) => `Arrival at ${d}`,
+  (d: string) => `Iconic ${d} Highlights`,
+  (d: string) => `Day Trip & Exploration`,
+  (d: string) => `Culture & Markets`,
+  (d: string) => `Adventure Day`,
+  (d: string) => `Relax & Explore`,
+  (d: string) => `Art & Waterfront`,
+  (d: string) => `Local Immersion`,
+  (d: string) => `Nature & Heritage`,
+  (d: string) => `Hidden Gems`,
+  (d: string) => `Departure from ${d}`,
 ];
+
+function generateWeather(season: string, dest: string): WeatherInfo {
+  const temps: Record<string, string> = {
+    winter: "5°C – 18°C",
+    summer: "25°C – 38°C",
+    newyear: "2°C – 15°C",
+    eid: "20°C – 35°C",
+    custom: "15°C – 28°C",
+  };
+  const rain: Record<string, string> = {
+    winter: "15%", summer: "40%", newyear: "20%", eid: "35%", custom: "25%",
+  };
+  const warnings: Record<string, string> = {
+    winter: "Pack warm layers and check for snow advisories",
+    summer: "Stay hydrated, use sunscreen, avoid peak heat hours",
+    newyear: "Expect crowds at popular spots, book transport early",
+    eid: "Many local shops may close, plan meals and transport ahead",
+    custom: "Check local weather conditions closer to travel date",
+  };
+  return {
+    temperature: temps[season] ?? temps.custom,
+    rainChance: rain[season] ?? rain.custom,
+    warning: warnings[season] ?? warnings.custom,
+  };
+}
+
+function generatePacking(season: string, days: number, dest: string): string[] {
+  const base = ["Passport & travel documents", "Phone charger & power bank", "Toiletries kit", "First aid kit", "Reusable water bottle"];
+  const clothing = days <= 3 ? ["3 sets of clothes", "1 pair comfortable shoes"] :
+    days <= 7 ? ["5-7 sets of clothes", "2 pairs of shoes", "Light jacket"] :
+    days <= 30 ? ["10+ sets of clothes", "3 pairs of shoes", "Laundry bag"] :
+    ["2 weeks of clothes (plan laundry)", "3-4 pairs of shoes", "Laundry supplies"];
+  
+  const seasonal: Record<string, string[]> = {
+    winter: ["Heavy jacket / coat", "Thermal underwear", "Gloves & scarf", "Warm hat"],
+    summer: ["Sunscreen SPF 50+", "Sunglasses", "Light breathable clothes", "Hat / cap"],
+    newyear: ["Warm layers", "Festive outfit", "Hand warmers"],
+    eid: ["Modest clothing", "Comfortable walking shoes", "Umbrella"],
+    custom: ["Layered clothing", "Rain jacket", "Comfortable walking shoes"],
+  };
+
+  return [...base, ...clothing, ...(seasonal[season] ?? seasonal.custom)];
+}
 
 export function generateItinerary(form: FormData): Itinerary {
   const dest = form.destination || "Your Destination";
-  const mult = budgetMultiplier[form.budget] ?? 1;
-
-  // Currency & cost estimation based on destination
-  const isLocal = dest.toLowerCase().includes("bangladesh") || 
-    ["cox's bazar","sundarbans","sylhet","bandarban","rangamati","saint martin","kuakata","sajek","dhaka","chittagong"]
-      .some(b => dest.toLowerCase().includes(b));
-
-  const currency = isLocal ? "৳" : "$";
-  const baseHotel = isLocal ? 800 : 60;
-  const baseFood = isLocal ? 400 : 30;
-  const baseTransport = isLocal ? 700 : 80;
-  const baseTicket = isLocal ? 300 : 20;
-
-  const transportLabels: Record<string, string> = {
-    bus: `Intercity Bus / Coach Service`,
-    train: `Train / Rail Service`,
-    flight: `Domestic / International Flight`,
-    auto: form.budget === "premium" ? "Flight (recommended)" : "Bus / Train (best value)",
-  };
-
-  const hotelTiers: Record<string, string[]> = {
-    budget: [`Budget Inn near ${dest} center`, `Hostel / Guesthouse`, `Affordable Hotel`],
-    seaview: [`Waterfront Hotel in ${dest}`, `Resort with scenic views`, `Boutique stay near coast`],
-    luxury: [`5-Star Hotel in ${dest}`, `Luxury Resort & Spa`, `Premium Suite with city view`],
-    auto: form.budget === "premium"
-      ? [`Top-rated Hotel in ${dest}`, `Luxury Resort`]
-      : [`Budget-friendly Hotel in ${dest}`, `Well-rated Guesthouse`],
-  };
+  const userBudget = parseFloat(form.budget) || 500;
+  const numDays = Math.max(1, Math.min(365, form.days));
 
   // Build day-by-day
-  const itineraryDays = Array.from({ length: form.days }, (_, i) => {
+  const itineraryDays: ItineraryDay[] = Array.from({ length: numDays }, (_, i) => {
     const dayNum = i + 1;
-    if (dayNum === 1) return {
-      day: 1,
-      title: dayTitles[0](dest),
-      activities: activityTemplates[0](dest),
-    };
-    if (dayNum === form.days) return {
+    if (dayNum === 1) return { day: 1, title: titlePool[0](dest), activities: activityPool[0](dest) };
+    if (dayNum === numDays && numDays > 1) return {
       day: dayNum,
-      title: dayTitles[6](dest),
+      title: titlePool[titlePool.length - 1](dest),
       activities: [`Morning visit to a final landmark`, `Souvenir shopping`, `Depart from ${dest}`],
     };
-    const idx = ((dayNum - 2) % (activityTemplates.length - 1)) + 1;
+    const idx = ((dayNum - 2) % (activityPool.length - 1)) + 1;
     return {
       day: dayNum,
-      title: dayTitles[Math.min(idx, dayTitles.length - 2)](dest),
-      activities: activityTemplates[idx](dest),
+      title: titlePool[Math.min(idx, titlePool.length - 2)](dest),
+      activities: activityPool[idx](dest),
     };
   });
 
-  const transportCost = Math.round(baseTransport * (form.transport === "flight" ? 5 : form.transport === "train" ? 1.3 : 1) * mult);
-  const hotelCost = Math.round(baseHotel * mult * form.days);
-  const foodCost = Math.round(baseFood * (form.food === "premium" ? 2.5 : form.food === "mixed" ? 1.5 : 1) * form.days);
-  const ticketCost = Math.round(baseTicket * mult * 0.5 * form.days);
-  const emergency = Math.round((transportCost + hotelCost + foodCost) * 0.1);
-  const total = transportCost + hotelCost + foodCost + ticketCost + emergency;
+  // Cost estimation based on budget
+  const dailyBudget = userBudget / numDays;
+  const transportPct = form.transport === "flight" ? 0.35 : form.transport === "car" ? 0.2 : 0.15;
+  const hotelPct = 0.35;
+  const foodPct = form.food === "premium" ? 0.25 : form.food === "mixed" ? 0.18 : 0.12;
+  const ticketPct = 0.08;
+  const emergencyPct = 0.07;
 
-  const fmt = (n: number) => `${currency}${n.toLocaleString()}`;
+  const transportCost = Math.round(userBudget * transportPct);
+  const hotelCost = Math.round(userBudget * hotelPct);
+  const foodCost = Math.round(userBudget * foodPct);
+  const ticketCost = Math.round(userBudget * ticketPct);
+  const emergency = Math.round(userBudget * emergencyPct);
+  const localTravel = Math.round(userBudget * 0.05);
+  const total = transportCost + hotelCost + foodCost + ticketCost + emergency + localTravel;
 
-  // Smart suggestions based on season
+  const fmt = (n: number) => `$${n.toLocaleString()}`;
+
+  // Hotel suggestions
+  const hotelSuggestions: HotelCard[] = [
+    { name: `Budget Inn near ${dest} center`, category: "cheapest", priceRange: `${fmt(Math.round(dailyBudget * 0.15))}/night`, rating: 3.8, distance: "0.5 km from center" },
+    { name: `Comfort Stay ${dest}`, category: "bestValue", priceRange: `${fmt(Math.round(dailyBudget * 0.3))}/night`, rating: 4.2, distance: "1.2 km from center" },
+    { name: `Grand ${dest} Hotel & Spa`, category: "luxury", priceRange: `${fmt(Math.round(dailyBudget * 0.6))}/night`, rating: 4.7, distance: "0.8 km from center" },
+    { name: `${dest} Travelers' Choice`, category: "popular", priceRange: `${fmt(Math.round(dailyBudget * 0.25))}/night`, rating: 4.5, distance: "0.3 km from center" },
+    { name: `Heritage House ${dest}`, category: "historic", priceRange: `${fmt(Math.round(dailyBudget * 0.35))}/night`, rating: 4.3, distance: "1.5 km from center" },
+  ];
+
+  const transportLabels: Record<string, string> = {
+    bus: "Intercity Bus / Coach Service",
+    train: "Train / Rail Service",
+    flight: "Domestic / International Flight",
+    car: "Rental Car / Self-Drive",
+    auto: dailyBudget > 100 ? "Flight (recommended for your budget)" : "Bus / Train (best value)",
+  };
+
   const seasonTips: Record<string, string[]> = {
-    newyear: [`Best fireworks & New Year spots in ${dest}`, `Book hotels early — peak season pricing`, `Check local NYE events and festivals`],
-    eid: [`Explore local Eid celebrations in ${dest}`, `Many shops may close — plan meals ahead`, `Best cultural experiences during Eid`],
-    winter: [`Pack warm layers for ${dest}`, `Great weather for outdoor sightseeing`, `Off-peak discounts may be available`],
-    summer: [`Stay hydrated — carry water bottles`, `Early morning is best for outdoor activities`, `Beach and water activities are ideal`],
+    newyear: [`Best fireworks & New Year spots in ${dest}`, `Book hotels early — peak season`, `Check local NYE events`],
+    eid: [`Explore local Eid celebrations in ${dest}`, `Many shops may close — plan ahead`, `Best cultural experiences during Eid`],
+    winter: [`Pack warm layers for ${dest}`, `Great weather for sightseeing`, `Off-peak discounts available`],
+    summer: [`Stay hydrated — carry water`, `Early morning best for outdoor activities`, `Beach and water activities ideal`],
+    custom: [`Check local events calendar for ${dest}`, `Flexible dates can save money`, `Compare prices across seasons`],
   };
 
   return {
     destination: dest,
     days: itineraryDays,
     transport: transportLabels[form.transport] ?? transportLabels.auto,
-    hotels: hotelTiers[form.hotel] ?? hotelTiers.auto,
+    hotels: hotelSuggestions,
     restaurants: [
       `Top-rated local restaurant in ${dest}`,
       `Street food market / food court`,
@@ -130,12 +215,17 @@ export function generateItinerary(form: FormData): Itinerary {
     ],
     costs: [
       { label: "🚌 Transport (round trip)", amount: fmt(transportCost) },
-      { label: `🏨 Hotel (${form.days} nights)`, amount: fmt(hotelCost) },
-      { label: `🍛 Food (${form.days} days)`, amount: fmt(foodCost) },
+      { label: `🏨 Hotel (${numDays} nights)`, amount: fmt(hotelCost) },
+      { label: `🍛 Food (${numDays} days)`, amount: fmt(foodCost) },
       { label: "🎫 Entry Tickets", amount: fmt(ticketCost) },
+      { label: "🚕 Local Travel", amount: fmt(localTravel) },
       { label: "🆘 Emergency Fund", amount: fmt(emergency) },
     ],
     total: fmt(total),
-    seasonTips: seasonTips[form.season] ?? seasonTips.winter,
+    minBudget: fmt(Math.round(total * 0.8)),
+    maxBudget: fmt(Math.round(total * 1.3)),
+    seasonTips: seasonTips[form.season] ?? seasonTips.custom,
+    weather: generateWeather(form.season, dest),
+    packingList: generatePacking(form.season, numDays, dest),
   };
 }
