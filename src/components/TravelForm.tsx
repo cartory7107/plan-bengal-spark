@@ -65,7 +65,7 @@ const SelectGroup = ({ icon: Icon, label, value, onChange, options }: {
 
 const TravelForm = ({ onSubmit, loading }: Props) => {
   const [form, setForm] = useState<FormData>({
-    destination: "Cox's Bazar",
+    destination: "",
     days: 3,
     season: "winter",
     budget: "low",
@@ -75,6 +75,13 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
     food: "local",
     language: "English",
   });
+
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filteredDestinations = form.destination.length > 0
+    ? POPULAR_DESTINATIONS.filter(d => d.toLowerCase().includes(form.destination.toLowerCase())).slice(0, 8)
+    : POPULAR_DESTINATIONS.slice(0, 8);
 
   const set = <K extends keyof FormData>(key: K, val: FormData[K]) =>
     setForm((p) => ({ ...p, [key]: val }));
