@@ -84,6 +84,13 @@ const ItineraryResult = ({ data }: { data: Itinerary }) => (
           </div>
         </div>
       </Section>
+
+      {/* Season Tips */}
+      {data.seasonTips && data.seasonTips.length > 0 && (
+        <Section icon={Lightbulb} title="Smart Tips for Your Trip">
+          <ul className="space-y-1">{data.seasonTips.map((t,i) => <li key={i} className="text-sm text-muted-foreground">💡 {t}</li>)}</ul>
+        </Section>
+      )}
     </div>
   </section>
 );
