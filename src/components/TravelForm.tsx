@@ -72,9 +72,10 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
   const fromRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Only show suggestions when user has typed something
-  const filteredDestinations = form.destination.length >= 1
-    ? WORLD_DESTINATIONS.filter(d => d.toLowerCase().includes(form.destination.toLowerCase())).slice(0, 8)
+  const currentQuery = activeField === "from" ? form.from : form.destination;
+  const filteredDestinations = currentQuery.length >= 1
+    ? WORLD_DESTINATIONS.filter(d => d.toLowerCase().includes(currentQuery.toLowerCase())).slice(0, 8)
+    : [];
     : [];
 
   const set = <K extends keyof FormData>(key: K, val: FormData[K]) =>
