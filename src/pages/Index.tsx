@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
 import AnimatedBackground from "@/components/AnimatedBackground";
-import LanguageBar from "@/components/LanguageBar";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TravelForm from "@/components/TravelForm";
