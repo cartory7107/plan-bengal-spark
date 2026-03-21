@@ -241,22 +241,6 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
             ]}
           />
 
-          {/* Language */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Globe className="w-4 h-4 text-primary" />
-              Language
-            </label>
-            <select
-              value={form.language}
-              onChange={(e) => set("language", e.target.value)}
-              className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l} value={l}>{l}</option>
-              ))}
-            </select>
-          </div>
 
           <button
             type="submit"
