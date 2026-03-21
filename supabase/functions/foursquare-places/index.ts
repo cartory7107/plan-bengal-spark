@@ -5,8 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const OTM_BASE = 'https://api.opentripmap.com/0.1/en/places';
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,58 +17,49 @@ serve(async (req) => {
       throw new Error('Missing "near" parameter');
     }
 
-    // Step 1: Geocode the location name
-    const geoUrl = `${OTM_BASE}/geoname?name=${encodeURIComponent(near)}&apikey=5ae2e3f221c38a28845f05b6aeb0ae296e38d61398d2ec1a01cee068`;
-    console.log('Geocoding:', near);
-    const geoRes = await fetch(geoUrl);
-    const geoText = await geoRes.text();
+    // Determine search query based on request type
+    let searchQuery = '';
+    const isHotel = categories === '19014' || (query && query.toLowerCase().includes('hotel'));
+    const isTourist = query && (query.toLowerCase().includes('tourist') || query.toLowerCase().includes('landmark') || query.toLowerCase().includes('attraction'));
 
-    if (!geoRes.ok) {
-      throw new Error(`Geocoding failed [${geoRes.status}]: ${geoText}`);
+    if (isHotel) {
+      searchQuery = `hotel in ${near}`;
+    } else if (isTourist) {
+      searchQuery = `tourist attraction in ${near}`;
+    } else {
+      searchQuery = query ? `${query} in ${near}` : near;
     }
 
-    const geo = JSON.parse(geoText);
-    const { lat, lon } = geo;
+    // Use Nominatim search (free, no API key)
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=${limit}&addressdetails=1&extratags=1`;
+    console.log('Searching:', url);
 
-    if (!lat || !lon) {
-      throw new Error(`Could not geocode "${near}"`);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'CartoryTravelAI/1.0',
+        'Accept': 'application/json',
+      },
+    });
+
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(`Nominatim error [${response.status}]: ${text}`);
     }
 
-    // Step 2: Fetch nearby places by radius
-    // Determine kinds filter based on request
-    let kinds = 'interesting_places';
-    if (categories === '19014' || (query && query.toLowerCase().includes('hotel'))) {
-      kinds = 'accomodations';
-    } else if (query && (query.toLowerCase().includes('tourist') || query.toLowerCase().includes('landmark') || query.toLowerCase().includes('attraction'))) {
-      kinds = 'cultural,architecture,historic,natural,religion,museums';
-    }
+    const results = JSON.parse(text);
 
-    const radius = 10000; // 10km
-    const placesUrl = `${OTM_BASE}/radius?radius=${radius}&lon=${lon}&lat=${lat}&kinds=${kinds}&limit=${limit}&format=json&apikey=5ae2e3f221c38a28845f05b6aeb0ae296e38d61398d2ec1a01cee068`;
-    console.log('Fetching places:', placesUrl);
-
-    const placesRes = await fetch(placesUrl);
-    const placesText = await placesRes.text();
-
-    if (!placesRes.ok) {
-      throw new Error(`Places API failed [${placesRes.status}]: ${placesText}`);
-    }
-
-    const rawPlaces = JSON.parse(placesText);
-
-    // Step 3: Get details for each place (name, etc.)
-    const places = rawPlaces
-      .filter((p: any) => p.name && p.name.trim() !== '')
+    const places = results
+      .filter((r: any) => r.display_name)
       .map((place: any) => ({
-        id: place.xid || String(place.osm),
-        name: place.name,
-        address: '',
-        city: near,
-        country: '',
-        lat: place.point?.lat || null,
-        lng: place.point?.lon || null,
-        categories: place.kinds ? place.kinds.split(',').slice(0, 3) : [],
-        distance: place.dist ? Math.round(place.dist) : undefined,
+        id: String(place.place_id),
+        name: place.display_name.split(',')[0],
+        address: place.display_name.split(',').slice(1, 3).join(',').trim(),
+        city: place.address?.city || place.address?.town || place.address?.village || '',
+        country: place.address?.country || '',
+        lat: parseFloat(place.lat),
+        lng: parseFloat(place.lon),
+        categories: [place.type?.replace(/_/g, ' ')].filter(Boolean),
+        distance: undefined,
       }));
 
     return new Response(JSON.stringify({ places }), {
