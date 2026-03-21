@@ -1,21 +1,11 @@
 import { useState, useRef } from "react";
 import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Globe, Sparkles, Search } from "lucide-react";
+import { WORLD_DESTINATIONS } from "@/data/destinations";
 
 const LANGUAGES = [
   "English","Bangla","Hindi","Urdu","Arabic","Spanish","French","German","Chinese",
   "Japanese","Korean","Turkish","Malay","Indonesian","Portuguese","Italian","Russian",
   "Thai","Vietnamese","Dutch"
-];
-
-const POPULAR_DESTINATIONS = [
-  "Cox's Bazar, Bangladesh",
-  "Paris, France","Tokyo, Japan","New York, USA","Dubai, UAE",
-  "Istanbul, Turkey","Bangkok, Thailand","Rome, Italy","London, UK","Barcelona, Spain",
-  "Bali, Indonesia","Maldives","Singapore","Kuala Lumpur, Malaysia","Seoul, South Korea",
-  "Cairo, Egypt","Sydney, Australia","Rio de Janeiro, Brazil","Cape Town, South Africa",
-  "Santorini, Greece","Marrakech, Morocco","Phuket, Thailand","Hanoi, Vietnam",
-  "Petra, Jordan","Machu Picchu, Peru","Reykjavik, Iceland","Zurich, Switzerland",
-  "Prague, Czech Republic","Amsterdam, Netherlands","Lisbon, Portugal","Havana, Cuba",
 ];
 
 interface FormData {
@@ -79,9 +69,10 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredDestinations = form.destination.length > 0
-    ? POPULAR_DESTINATIONS.filter(d => d.toLowerCase().includes(form.destination.toLowerCase())).slice(0, 8)
-    : POPULAR_DESTINATIONS.slice(0, 8);
+  // Only show suggestions when user has typed something
+  const filteredDestinations = form.destination.length >= 1
+    ? WORLD_DESTINATIONS.filter(d => d.toLowerCase().includes(form.destination.toLowerCase())).slice(0, 8)
+    : [];
 
   const set = <K extends keyof FormData>(key: K, val: FormData[K]) =>
     setForm((p) => ({ ...p, [key]: val }));
