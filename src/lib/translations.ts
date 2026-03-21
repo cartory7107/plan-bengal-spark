@@ -109,6 +109,11 @@ const en: Record<TranslationKey, string> = {
   historicArea: "Historic Area Hotel",
   minBudget: "Min Budget",
   maxBudget: "Max Budget",
+  nearbyPlaces: "Nearby Places (Foursquare)",
+  searching: "Searching...",
+  discoverPlaces: "Discover Places",
+  nearbyHotels: "Nearby Hotels",
+  nearbyAttractions: "Tourist Attractions",
 };
 
 const bn: Record<TranslationKey, string> = {
