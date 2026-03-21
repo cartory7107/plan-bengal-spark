@@ -170,6 +170,10 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           </Section>
         )}
 
+        {/* Travel Insights (Firecrawl) */}
+        <TravelInsights destination={data.destination} language={language} />
+
+
         {/* Download */}
         <Section icon={Download} title={t(language, "downloadTitle")}>
           <div className="flex flex-wrap gap-3">
