@@ -209,5 +209,6 @@ export function generateFallbackItinerary(form: FormData): Itinerary {
     safetyLevel: "Generally safe for tourists",
     bestTimeToVisit: "Check seasonal guides",
     crowdLevel: "Moderate",
+    ticketPrices: [],
   };
 }

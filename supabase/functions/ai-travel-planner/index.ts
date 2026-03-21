@@ -52,12 +52,13 @@ Return this exact JSON structure:
   "travelTips": ["string"],
   "travelInsights": ["string"],
   "transportEstimates": [{"from":"string","to":"string","distance":"string","duration":"string","suggestion":"string"}],
+  "ticketPrices": [{"mode":"Bus|Train|Flight|Metro|Taxi|Rickshaw|Ferry|Tuk-tuk|CNG|Uber","route":"string","price":"string","duration":"string","frequency":"string","tip":"string"}],
   "safetyLevel": "string",
   "bestTimeToVisit": "string",
   "crowdLevel": "string"
 }
 
-Generate 5 hotels, 6 restaurants, 6 attractions, 4 hidden spots, ${days} day plans, 6 cost items, 10+ packing items, 5 travel tips, 5 insights, 3+ transport estimates.`;
+Generate 5 hotels, 6 restaurants, 6 attractions, 4 hidden spots, ${days} day plans, 6 cost items, 10+ packing items, 5 travel tips, 5 insights, 3+ transport estimates, 8-10 ticket prices covering intercity AND local transport modes specific to ${destination} (include country-specific modes like rickshaw, CNG, tuk-tuk, ferry where applicable).`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
