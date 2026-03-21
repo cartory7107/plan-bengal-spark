@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Globe, Sparkles } from "lucide-react";
+import { useState, useRef } from "react";
+import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Globe, Sparkles, Search } from "lucide-react";
 
 const LANGUAGES = [
   "English","Bangla","Hindi","Urdu","Arabic","Spanish","French","German","Chinese",
@@ -7,7 +7,16 @@ const LANGUAGES = [
   "Thai","Vietnamese","Dutch"
 ];
 
-const DESTINATIONS = ["Cox's Bazar","Sundarbans","Sylhet","Bandarban","Rangamati","Saint Martin","Kuakata","Sajek Valley","Dhaka","Chittagong"];
+const POPULAR_DESTINATIONS = [
+  "Cox's Bazar, Bangladesh","Sundarbans, Bangladesh","Sylhet, Bangladesh","Bandarban, Bangladesh",
+  "Saint Martin, Bangladesh","Paris, France","Tokyo, Japan","New York, USA","Dubai, UAE",
+  "Istanbul, Turkey","Bangkok, Thailand","Rome, Italy","London, UK","Barcelona, Spain",
+  "Bali, Indonesia","Maldives","Singapore","Kuala Lumpur, Malaysia","Seoul, South Korea",
+  "Cairo, Egypt","Sydney, Australia","Rio de Janeiro, Brazil","Cape Town, South Africa",
+  "Santorini, Greece","Marrakech, Morocco","Phuket, Thailand","Hanoi, Vietnam",
+  "Petra, Jordan","Machu Picchu, Peru","Reykjavik, Iceland","Zurich, Switzerland",
+  "Prague, Czech Republic","Amsterdam, Netherlands","Lisbon, Portugal","Havana, Cuba",
+];
 
 interface FormData {
   destination: string;
@@ -56,7 +65,7 @@ const SelectGroup = ({ icon: Icon, label, value, onChange, options }: {
 
 const TravelForm = ({ onSubmit, loading }: Props) => {
   const [form, setForm] = useState<FormData>({
-    destination: "Cox's Bazar",
+    destination: "",
     days: 3,
     season: "winter",
     budget: "low",
@@ -66,6 +75,13 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
     food: "local",
     language: "English",
   });
+
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filteredDestinations = form.destination.length > 0
+    ? POPULAR_DESTINATIONS.filter(d => d.toLowerCase().includes(form.destination.toLowerCase())).slice(0, 8)
+    : POPULAR_DESTINATIONS.slice(0, 8);
 
   const set = <K extends keyof FormData>(key: K, val: FormData[K]) =>
     setForm((p) => ({ ...p, [key]: val }));
@@ -85,20 +101,39 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
           className="glass-card-solid rounded-3xl p-6 md:p-10 space-y-8"
         >
           {/* Destination */}
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <MapPin className="w-4 h-4 text-primary" />
               Where are you traveling?
             </label>
-            <select
-              value={form.destination}
-              onChange={(e) => set("destination", e.target.value)}
-              className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-            >
-              {DESTINATIONS.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={form.destination}
+                onChange={(e) => { set("destination", e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Type any city or destination worldwide..."
+                className="w-full rounded-xl border border-border bg-white/70 pl-10 pr-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+              />
+            </div>
+            {showSuggestions && filteredDestinations.length > 0 && (
+              <div className="absolute z-20 top-full left-0 right-0 mt-1 glass-card-solid rounded-xl overflow-hidden shadow-xl max-h-64 overflow-y-auto">
+                {filteredDestinations.map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onMouseDown={() => { set("destination", d); setShowSuggestions(false); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-primary/10 transition-colors flex items-center gap-2"
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-primary/60 shrink-0" />
+                    {d}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Days */}
