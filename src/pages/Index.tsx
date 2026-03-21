@@ -5,7 +5,9 @@ import HeroSection from "@/components/HeroSection";
 import TravelForm from "@/components/TravelForm";
 import ItineraryResult from "@/components/ItineraryResult";
 import Footer from "@/components/Footer";
-import { generateItinerary, type Itinerary, type FormData } from "@/lib/generateItinerary";
+import { generateDynamicItinerary } from "@/lib/travelApi";
+import type { Itinerary, FormData } from "@/lib/generateItinerary";
+import { toast } from "sonner";
 
 const Index = () => {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
@@ -15,11 +17,17 @@ const Index = () => {
 
   const handleSubmit = async (form: FormData) => {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    const result = generateItinerary(form);
-    setItinerary(result);
-    setLoading(false);
-    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    try {
+      const result = await generateDynamicItinerary(form);
+      setItinerary(result);
+      toast.success("Your AI travel plan is ready!");
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    } catch (err) {
+      console.error("Plan generation error:", err);
+      toast.error("Failed to generate plan. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
