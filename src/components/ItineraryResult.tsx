@@ -2,6 +2,7 @@ import { MapPin, Hotel, Utensils, Star, DollarSign, PartyPopper, Eye, Lightbulb,
 import { t } from "@/lib/translations";
 import type { Itinerary, HotelCard } from "@/lib/generateItinerary";
 import NearbyPlaces from "@/components/NearbyPlaces";
+import TravelInsights from "@/components/TravelInsights";
 
 const Section = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
   <div className="glass-card rounded-2xl p-5 md:p-6 space-y-3">
@@ -168,6 +169,10 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
             <ul className="space-y-1">{seasonTips.map((tip, i) => <li key={i} className="text-sm text-muted-foreground">💡 {tip}</li>)}</ul>
           </Section>
         )}
+
+        {/* Travel Insights (Firecrawl) */}
+        <TravelInsights destination={data.destination} language={language} />
+
 
         {/* Download */}
         <Section icon={Download} title={t(language, "downloadTitle")}>
