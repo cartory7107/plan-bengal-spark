@@ -56,6 +56,7 @@ const SelectGroup = ({ icon: Icon, label, value, onChange, options }: {
 
 const TravelForm = ({ onSubmit, loading }: Props) => {
   const [form, setForm] = useState<FormData>({
+    from: "",
     destination: "",
     days: 3,
     season: "winter",
@@ -67,7 +68,8 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
     language: "English",
   });
 
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeField, setActiveField] = useState<"from" | "destination" | null>(null);
+  const fromRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Only show suggestions when user has typed something
