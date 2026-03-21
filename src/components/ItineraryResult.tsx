@@ -250,6 +250,30 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           </Section>
         )}
 
+        {/* Ticket & Transport Prices */}
+        {data.ticketPrices && data.ticketPrices.length > 0 && (
+          <Section icon={Ticket} title={t(language, "ticketPricesTitle")}>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {data.ticketPrices.map((tp, i) => (
+                <div key={i} className="glass-card rounded-xl p-4 space-y-2 transition-all duration-200 hover:shadow-md">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-semibold text-sm text-foreground">{tp.mode}</h4>
+                    <span className="text-xs font-bold gradient-bg text-primary-foreground px-2 py-0.5 rounded-full whitespace-nowrap">{tp.price}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-medium">{tp.route}</p>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                    {tp.duration && <span>⏱️ {tp.duration}</span>}
+                    {tp.frequency && <span>🔄 {tp.frequency}</span>}
+                  </div>
+                  {tp.tip && (
+                    <p className="text-xs text-primary/80 mt-1">💡 {tp.tip}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
         {/* Packing Checklist */}
         <Section icon={Backpack} title={t(language, "packingTitle")}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
