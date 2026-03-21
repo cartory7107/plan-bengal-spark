@@ -25,8 +25,7 @@ const Index = () => {
   return (
     <div className="relative min-h-screen">
       <AnimatedBackground />
-      <LanguageBar value={language} onChange={setLanguage} />
-      <Navbar />
+      <Navbar language={language} onLanguageChange={setLanguage} />
       <HeroSection />
       <TravelForm onSubmit={handleSubmit} loading={loading} />
       {itinerary && (
