@@ -22,7 +22,8 @@ export type TranslationKey =
   | "footerTagline" | "madeBy"
   | "cheapestHotel" | "bestValueHotel" | "luxuryHotel" | "popularHotel" | "historicArea"
   | "minBudget" | "maxBudget"
-  | "nearbyPlaces" | "searching" | "discoverPlaces" | "nearbyHotels" | "nearbyAttractions";
+  | "nearbyPlaces" | "searching" | "discoverPlaces" | "nearbyHotels" | "nearbyAttractions"
+  | "travelInsights" | "searchInsights";
 
 type Translations = Record<string, Record<TranslationKey, string>>;
 
