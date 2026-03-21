@@ -199,6 +199,11 @@ const bn: Record<TranslationKey, string> = {
   historicArea: "ঐতিহাসিক এলাকার হোটেল",
   minBudget: "সর্বনিম্ন বাজেট",
   maxBudget: "সর্বোচ্চ বাজেট",
+  nearbyPlaces: "কাছাকাছি স্থান (Foursquare)",
+  searching: "খুঁজছি...",
+  discoverPlaces: "স্থান খুঁজুন",
+  nearbyHotels: "কাছাকাছি হোটেল",
+  nearbyAttractions: "পর্যটন আকর্ষণ",
 };
 
 // Generate other languages from English template with key translations
