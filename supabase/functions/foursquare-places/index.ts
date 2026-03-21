@@ -34,6 +34,7 @@ serve(async (req) => {
       headers: {
         'Authorization': FOURSQUARE_API_KEY,
         'Accept': 'application/json',
+        'Foursquare-Version': '20250101',
       },
     });
 
