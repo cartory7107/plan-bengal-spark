@@ -9,7 +9,11 @@ const LANGUAGES = [
 
 const POPULAR_DESTINATIONS = [
   "Cox's Bazar, Bangladesh","Sundarbans, Bangladesh","Sylhet, Bangladesh","Bandarban, Bangladesh",
-  "Saint Martin, Bangladesh","Paris, France","Tokyo, Japan","New York, USA","Dubai, UAE",
+  "Saint Martin, Bangladesh","Rangamati, Bangladesh","Kuakata, Bangladesh","Sajek Valley, Bangladesh",
+  "Dhaka, Bangladesh","Chittagong, Bangladesh","Srimangal, Bangladesh","Paharpur, Bangladesh",
+  "Mahasthangarh, Bangladesh","Ratargul Swamp Forest, Bangladesh","Nijhum Dwip, Bangladesh",
+  "Tanguar Haor, Bangladesh","Jaflong, Bangladesh","Lalakhal, Bangladesh","Bagerhat, Bangladesh",
+  "Paris, France","Tokyo, Japan","New York, USA","Dubai, UAE",
   "Istanbul, Turkey","Bangkok, Thailand","Rome, Italy","London, UK","Barcelona, Spain",
   "Bali, Indonesia","Maldives","Singapore","Kuala Lumpur, Malaysia","Seoul, South Korea",
   "Cairo, Egypt","Sydney, Australia","Rio de Janeiro, Brazil","Cape Town, South Africa",
