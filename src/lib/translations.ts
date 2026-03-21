@@ -118,6 +118,7 @@ const en: Record<TranslationKey, string> = {
   nearbyAttractions: "Tourist Attractions",
   travelInsights: "Travel Insights",
   searchInsights: "Search Tips & Guides",
+  ticketPricesTitle: "Ticket & Transport Prices",
 };
 
 const bn: Record<TranslationKey, string> = {
