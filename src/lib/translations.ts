@@ -23,7 +23,8 @@ export type TranslationKey =
   | "cheapestHotel" | "bestValueHotel" | "luxuryHotel" | "popularHotel" | "historicArea"
   | "minBudget" | "maxBudget"
   | "nearbyPlaces" | "searching" | "discoverPlaces" | "nearbyHotels" | "nearbyAttractions"
-  | "travelInsights" | "searchInsights";
+  | "travelInsights" | "searchInsights"
+  | "ticketPricesTitle";
 
 type Translations = Record<string, Record<TranslationKey, string>>;
 
