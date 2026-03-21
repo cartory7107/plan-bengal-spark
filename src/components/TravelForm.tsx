@@ -76,7 +76,6 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
   const filteredDestinations = currentQuery.length >= 1
     ? WORLD_DESTINATIONS.filter(d => d.toLowerCase().includes(currentQuery.toLowerCase())).slice(0, 8)
     : [];
-    : [];
 
   const set = <K extends keyof FormData>(key: K, val: FormData[K]) =>
     setForm((p) => ({ ...p, [key]: val }));
