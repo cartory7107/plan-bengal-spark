@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
 import AnimatedBackground from "@/components/AnimatedBackground";
-import LanguageBar from "@/components/LanguageBar";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TravelForm from "@/components/TravelForm";
@@ -26,8 +25,7 @@ const Index = () => {
   return (
     <div className="relative min-h-screen">
       <AnimatedBackground />
-      <LanguageBar value={language} onChange={setLanguage} />
-      <Navbar />
+      <Navbar language={language} onLanguageChange={setLanguage} />
       <HeroSection />
       <TravelForm onSubmit={handleSubmit} loading={loading} />
       {itinerary && (

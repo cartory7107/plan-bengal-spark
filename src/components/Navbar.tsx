@@ -1,7 +1,18 @@
 import { useState, useEffect } from "react";
-import { Plane } from "lucide-react";
+import { Plane, Globe } from "lucide-react";
 
-const Navbar = () => {
+const LANGUAGES = [
+  "English","Bangla","Hindi","Urdu","Arabic","Spanish","French","German","Chinese",
+  "Japanese","Korean","Turkish","Malay","Indonesian","Portuguese","Italian","Russian",
+  "Thai","Vietnamese","Dutch"
+];
+
+interface NavbarProps {
+  language?: string;
+  onLanguageChange?: (lang: string) => void;
+}
+
+const Navbar = ({ language = "English", onLanguageChange }: NavbarProps) => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -12,7 +23,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-8 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled ? "glass-card-solid py-3" : "py-5 bg-transparent"
       }`}
     >
@@ -25,12 +36,27 @@ const Navbar = () => {
             Trip<span className="gradient-text">Budget</span> AI
           </span>
         </a>
-        <a
-          href="#planner"
-          className="gradient-bg text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
-        >
-          Start Planning
-        </a>
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Globe className="w-4 h-4" />
+            <select
+              value={language}
+              onChange={(e) => onLanguageChange?.(e.target.value)}
+              className="bg-transparent text-sm font-medium text-foreground border-none outline-none cursor-pointer"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+          </div>
+          <a
+            href="#planner"
+            className="gradient-bg text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
+          >
+            Start Planning
+          </a>
+        </div>
       </div>
     </nav>
   );
