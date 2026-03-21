@@ -27,6 +27,9 @@ const HotelCardItem = ({ hotel }: { hotel: HotelCard }) => (
 );
 
 const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; language?: string }) => {
+  const weather = data.weather ?? { temperature: "N/A", rainChance: "N/A", warning: "No data available" };
+  const packingList = data.packingList ?? [];
+  const seasonTips = data.seasonTips ?? [];
   const handleDownload = (type: "pdf" | "csv" | "image") => {
     if (type === "csv") {
       const rows = [["Day", "Title", "Activities"]];
