@@ -27,6 +27,9 @@ const HotelCardItem = ({ hotel }: { hotel: HotelCard }) => (
 );
 
 const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; language?: string }) => {
+  const weather = data.weather ?? { temperature: "N/A", rainChance: "N/A", warning: "No data available" };
+  const packingList = data.packingList ?? [];
+  const seasonTips = data.seasonTips ?? [];
   const handleDownload = (type: "pdf" | "csv" | "image") => {
     if (type === "csv") {
       const rows = [["Day", "Title", "Activities"]];
@@ -69,15 +72,15 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="glass-card rounded-xl p-3 text-center">
               <p className="text-xs text-muted-foreground">{t(language, "temperature")}</p>
-              <p className="text-lg font-bold gradient-text">{data.weather.temperature}</p>
+              <p className="text-lg font-bold gradient-text">{weather.temperature}</p>
             </div>
             <div className="glass-card rounded-xl p-3 text-center">
               <p className="text-xs text-muted-foreground">{t(language, "rainChance")}</p>
-              <p className="text-lg font-bold text-foreground">{data.weather.rainChance}</p>
+              <p className="text-lg font-bold text-foreground">{weather.rainChance}</p>
             </div>
             <div className="glass-card rounded-xl p-3 text-center">
               <p className="text-xs text-muted-foreground">{t(language, "weatherWarning")}</p>
-              <p className="text-xs font-medium text-foreground leading-relaxed">{data.weather.warning}</p>
+              <p className="text-xs font-medium text-foreground leading-relaxed">{weather.warning}</p>
             </div>
           </div>
         </Section>
@@ -122,7 +125,7 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
         {/* Packing Checklist */}
         <Section icon={Backpack} title={t(language, "packingTitle")}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-            {data.packingList.map((item, i) => (
+            {packingList.map((item, i) => (
               <label key={i} className="flex items-center gap-2 text-sm text-muted-foreground py-1">
                 <input type="checkbox" className="rounded border-border accent-primary w-4 h-4" />
                 {item}
@@ -156,9 +159,9 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
         </Section>
 
         {/* Season Tips */}
-        {data.seasonTips.length > 0 && (
+        {seasonTips.length > 0 && (
           <Section icon={Lightbulb} title={t(language, "tipsTitle")}>
-            <ul className="space-y-1">{data.seasonTips.map((tip, i) => <li key={i} className="text-sm text-muted-foreground">💡 {tip}</li>)}</ul>
+            <ul className="space-y-1">{seasonTips.map((tip, i) => <li key={i} className="text-sm text-muted-foreground">💡 {tip}</li>)}</ul>
           </Section>
         )}
 
