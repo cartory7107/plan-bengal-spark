@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Sparkles, Search } from "lucide-react";
 import { WORLD_DESTINATIONS } from "@/data/destinations";
 import { t } from "@/lib/translations";
-import type { FormData } from "@/lib/generateItinerary";
+import { CURRENCIES, type FormData } from "@/lib/generateItinerary";
 
 interface Props {
   onSubmit: (data: FormData) => void;
@@ -72,7 +72,7 @@ const AutocompleteField = ({ label, value, onChange, placeholder, inputRef, isAc
 const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
   const [form, setForm] = useState<FormData>({
     from: "", destination: "", days: 3, season: "winter", budget: "500",
-    travelType: "solo", transport: "auto", hotel: "auto", food: "local", language: "English",
+    currency: "USD", travelType: "solo", transport: "auto", hotel: "auto", food: "local", language: "English",
   });
   const [activeField, setActiveField] = useState<"from" | "destination" | null>(null);
   const fromRef = useRef<HTMLInputElement>(null);
@@ -136,11 +136,22 @@ const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
                 <DollarSign className="w-4 h-4 text-primary" />
                 {t(language, "budgetLabel")}
               </label>
-              <input type="number" min={1} value={form.budget}
-                onChange={(e) => set("budget", e.target.value)}
-                className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                placeholder={t(language, "budgetPlaceholder")}
-              />
+              <div className="flex gap-2">
+                <select
+                  value={form.currency}
+                  onChange={(e) => set("currency", e.target.value)}
+                  className="rounded-xl border border-border bg-white/70 px-3 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 min-w-[100px]"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.symbol} {c.code}</option>
+                  ))}
+                </select>
+                <input type="number" min={1} value={form.budget}
+                  onChange={(e) => set("budget", e.target.value)}
+                  className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder={t(language, "budgetPlaceholder")}
+                />
+              </div>
             </div>
           </div>
 

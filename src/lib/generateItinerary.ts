@@ -40,12 +40,36 @@ export interface Itinerary {
   packingList: string[];
 }
 
+export const CURRENCIES = [
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "EUR", symbol: "€", name: "Euro" },
+  { code: "GBP", symbol: "£", name: "British Pound" },
+  { code: "BDT", symbol: "৳", name: "Bangladeshi Taka" },
+  { code: "INR", symbol: "₹", name: "Indian Rupee" },
+  { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+  { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
+  { code: "KRW", symbol: "₩", name: "Korean Won" },
+  { code: "SAR", symbol: "﷼", name: "Saudi Riyal" },
+  { code: "AED", symbol: "د.إ", name: "UAE Dirham" },
+  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+  { code: "MYR", symbol: "RM", name: "Malaysian Ringgit" },
+  { code: "THB", symbol: "฿", name: "Thai Baht" },
+  { code: "TRY", symbol: "₺", name: "Turkish Lira" },
+  { code: "RUB", symbol: "₽", name: "Russian Ruble" },
+  { code: "BRL", symbol: "R$", name: "Brazilian Real" },
+  { code: "PKR", symbol: "₨", name: "Pakistani Rupee" },
+  { code: "IDR", symbol: "Rp", name: "Indonesian Rupiah" },
+  { code: "VND", symbol: "₫", name: "Vietnamese Dong" },
+] as const;
+
 export interface FormData {
   from: string;
   destination: string;
   days: number;
   season: string;
   budget: string;
+  currency: string;
   travelType: string;
   transport: string;
   hotel: string;
@@ -161,7 +185,8 @@ export function generateItinerary(form: FormData): Itinerary {
   const localTravel = Math.round(userBudget * 0.05);
   const total = transportCost + hotelCost + foodCost + ticketCost + emergency + localTravel;
 
-  const fmt = (n: number) => `$${n.toLocaleString()}`;
+  const currencyInfo = CURRENCIES.find(c => c.code === form.currency) ?? CURRENCIES[0];
+  const fmt = (n: number) => `${currencyInfo.symbol}${n.toLocaleString()}`;
 
   // Hotel suggestions
   const hotelSuggestions: HotelCard[] = [
