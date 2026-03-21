@@ -98,6 +98,7 @@ export interface Itinerary {
   travelTips: string[];
   travelInsights: string[];
   transportEstimates: TransportEstimate[];
+  ticketPrices: TicketPrice[];
   safetyLevel: string;
   bestTimeToVisit: string;
   crowdLevel: string;
