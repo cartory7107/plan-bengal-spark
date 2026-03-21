@@ -20,7 +20,7 @@ const HeroSection = () => {
         </h1>
 
         <p className="reveal reveal-d2 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed" style={{ textWrap: "pretty" }}>
-          Get low-budget or premium travel plans instantly. From Cox's Bazar to anywhere in the world.
+          From Cox's Bazar to Paris, Tokyo to New York — plan any trip worldwide.
         </p>
 
         <a
