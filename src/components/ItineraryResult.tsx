@@ -1,12 +1,15 @@
 import {
   MapPin, Hotel, Utensils, Star, DollarSign, PartyPopper, Eye, Lightbulb,
   Cloud, Backpack, Download, FileText, FileSpreadsheet, Image, AlertTriangle,
-  Navigation, Thermometer, Droplets, Wind, Shield, Clock, Users, Route, Ticket
+  Navigation, Thermometer, Droplets, Wind, Shield, Clock, Users, Route, Ticket,
+  ArrowRightLeft, RefreshCw
 } from "lucide-react";
 import { t } from "@/lib/translations";
 import type { Itinerary, HotelCard, RestaurantCard, AttractionCard, TransportEstimate, WeatherDay, TicketPrice } from "@/lib/generateItinerary";
+import { CURRENCIES } from "@/lib/generateItinerary";
 import NearbyPlaces from "@/components/NearbyPlaces";
 import TravelInsights from "@/components/TravelInsights";
+import { useCurrencyRates } from "@/hooks/useCurrencyRates";
 
 const Section = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
   <div className="glass-card rounded-2xl p-5 md:p-6 space-y-3 reveal">
@@ -18,25 +21,37 @@ const Section = ({ icon: Icon, title, children }: { icon: React.ElementType; tit
   </div>
 );
 
-const HotelCardItem = ({ hotel }: { hotel: HotelCard }) => (
+/** Converts a price string using live rates, showing dual format */
+function useDualPrice(
+  formatDual: (priceStr: string, from: string, to: string) => string,
+  originalCurrency: string,
+  displayCurrency: string
+) {
+  return (priceStr: string) => {
+    if (!priceStr || originalCurrency === displayCurrency) return priceStr;
+    return formatDual(priceStr, originalCurrency, displayCurrency);
+  };
+}
+
+const HotelCardItem = ({ hotel, dual }: { hotel: HotelCard; dual: (s: string) => string }) => (
   <div className="glass-card rounded-xl p-4 space-y-2 transition-all duration-200 hover:shadow-md">
     <div className="flex items-start justify-between gap-2">
       <h4 className="font-semibold text-sm text-foreground">{hotel.name}</h4>
       <span className="text-xs font-medium gradient-bg text-primary-foreground px-2 py-0.5 rounded-full whitespace-nowrap capitalize">{hotel.category}</span>
     </div>
     <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-      <span className="font-semibold text-foreground">{hotel.pricePerNight || hotel.priceRange}</span>
+      <span className="font-semibold text-foreground">{dual(hotel.pricePerNight || hotel.priceRange || "")}</span>
       <span>⭐ {hotel.rating}</span>
       <span>📍 {hotel.distance}</span>
     </div>
   </div>
 );
 
-const RestaurantCardItem = ({ restaurant }: { restaurant: RestaurantCard }) => (
+const RestaurantCardItem = ({ restaurant, dual }: { restaurant: RestaurantCard; dual: (s: string) => string }) => (
   <div className="glass-card rounded-xl p-4 space-y-2 transition-all duration-200 hover:shadow-md">
     <div className="flex items-start justify-between gap-2">
       <h4 className="font-semibold text-sm text-foreground">{restaurant.name}</h4>
-      <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full whitespace-nowrap">{restaurant.priceLevel}</span>
+      <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full whitespace-nowrap">{dual(restaurant.priceLevel)}</span>
     </div>
     <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
       <span>⭐ {restaurant.rating}</span>
@@ -62,11 +77,7 @@ const WeatherDayCard = ({ day }: { day: WeatherDay }) => (
     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
       {new Date(day.date).toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" })}
     </p>
-    <img
-      src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
-      alt={day.description}
-      className="w-12 h-12 mx-auto"
-    />
+    <img src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`} alt={day.description} className="w-12 h-12 mx-auto" />
     <p className="text-sm font-bold text-foreground">{day.tempHigh}° / {day.tempLow}°</p>
     <p className="text-[10px] text-muted-foreground capitalize">{day.description}</p>
     <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
@@ -90,8 +101,24 @@ const TransportCard = ({ estimate }: { estimate: TransportEstimate }) => (
   </div>
 );
 
-const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; language?: string }) => {
+interface ItineraryResultProps {
+  data: Itinerary;
+  language?: string;
+  originalCurrency?: string;
+  displayCurrency?: string;
+  onCurrencyChange?: (currency: string) => void;
+}
+
+const ItineraryResult = ({
+  data,
+  language = "English",
+  originalCurrency = "USD",
+  displayCurrency = "USD",
+  onCurrencyChange,
+}: ItineraryResultProps) => {
   const weather = data.weather ?? { temperature: "N/A", rainChance: "N/A", warning: "No data available" };
+  const { formatDual, loading: ratesLoading, date: ratesDate } = useCurrencyRates();
+  const dual = useDualPrice(formatDual, originalCurrency, displayCurrency);
 
   const handleDownload = (type: "pdf" | "csv" | "image") => {
     if (type === "csv") {
@@ -134,16 +161,45 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           </div>
         </div>
 
+        {/* Currency Switcher */}
+        {onCurrencyChange && (
+          <div className="glass-card-solid rounded-2xl p-4 reveal">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <ArrowRightLeft className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">Display Currency</span>
+                {ratesLoading && <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin" />}
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={displayCurrency}
+                  onChange={(e) => onCurrencyChange(e.target.value)}
+                  className="rounded-xl border border-border bg-white/70 px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.symbol} {c.code} – {c.name}</option>
+                  ))}
+                </select>
+                {ratesDate && (
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                    Rate: {ratesDate}
+                  </span>
+                )}
+              </div>
+            </div>
+            {originalCurrency !== displayCurrency && (
+              <p className="text-[11px] text-muted-foreground mt-2">
+                All prices shown as original ({originalCurrency}) ≈ converted ({displayCurrency}) using live exchange rates.
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Real-time Weather */}
         <Section icon={Cloud} title={t(language, "weatherTitle")}>
-          {/* Current weather summary */}
           {weather.current && (
             <div className="glass-card-solid rounded-xl p-4 flex items-center gap-4 mb-3">
-              <img
-                src={`https://openweathermap.org/img/wn/${weather.current.icon}@2x.png`}
-                alt={weather.current.description}
-                className="w-16 h-16"
-              />
+              <img src={`https://openweathermap.org/img/wn/${weather.current.icon}@2x.png`} alt={weather.current.description} className="w-16 h-16" />
               <div>
                 <p className="text-2xl font-extrabold gradient-text">{weather.current.temp}°C</p>
                 <p className="text-xs text-muted-foreground capitalize">{weather.current.description}</p>
@@ -159,13 +215,9 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
               )}
             </div>
           )}
-
-          {/* Daily forecast */}
           {weather.daily && weather.daily.length > 0 ? (
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
-              {weather.daily.map((day, i) => (
-                <WeatherDayCard key={i} day={day} />
-              ))}
+              {weather.daily.map((day, i) => <WeatherDayCard key={i} day={day} />)}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -183,8 +235,6 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
               </div>
             </div>
           )}
-
-          {/* Warning */}
           {weather.warning && weather.warning !== "No severe weather warnings. Enjoy your trip!" && (
             <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50/80 border border-amber-200/50">
               <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
@@ -201,9 +251,7 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full gradient-bg shadow-sm" />
                 <h4 className="font-bold text-sm text-foreground">{t(language, "day")} {d.day}: {d.title}</h4>
                 <ul className="mt-1 space-y-0.5">
-                  {d.activities.map((a, i) => (
-                    <li key={i} className="text-sm text-muted-foreground">• {a}</li>
-                  ))}
+                  {d.activities.map((a, i) => <li key={i} className="text-sm text-muted-foreground">• {a}</li>)}
                 </ul>
               </div>
             ))}
@@ -213,17 +261,17 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
         {/* Hotels */}
         <Section icon={Hotel} title={t(language, "hotelsTitle")}>
           <div className="grid gap-3">
-            {data.hotels.map((h, i) => <HotelCardItem key={i} hotel={h} />)}
+            {data.hotels.map((h, i) => <HotelCardItem key={i} hotel={h} dual={dual} />)}
           </div>
         </Section>
 
-        {/* Nearby Places (OpenStreetMap) */}
+        {/* Nearby Places */}
         <NearbyPlaces destination={data.destination} language={language} />
 
         {/* Restaurants */}
         <Section icon={Utensils} title={t(language, "restaurantsTitle")}>
           <div className="grid sm:grid-cols-2 gap-3">
-            {data.restaurants.map((r, i) => <RestaurantCardItem key={i} restaurant={r} />)}
+            {data.restaurants.map((r, i) => <RestaurantCardItem key={i} restaurant={r} dual={dual} />)}
           </div>
         </Section>
 
@@ -258,16 +306,14 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
                 <div key={i} className="glass-card rounded-xl p-4 space-y-2 transition-all duration-200 hover:shadow-md">
                   <div className="flex items-start justify-between gap-2">
                     <h4 className="font-semibold text-sm text-foreground">{tp.mode}</h4>
-                    <span className="text-xs font-bold gradient-bg text-primary-foreground px-2 py-0.5 rounded-full whitespace-nowrap">{tp.price}</span>
+                    <span className="text-xs font-bold gradient-bg text-primary-foreground px-2 py-0.5 rounded-full whitespace-nowrap">{dual(tp.price)}</span>
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">{tp.route}</p>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                     {tp.duration && <span>⏱️ {tp.duration}</span>}
                     {tp.frequency && <span>🔄 {tp.frequency}</span>}
                   </div>
-                  {tp.tip && (
-                    <p className="text-xs text-primary/80 mt-1">💡 {tp.tip}</p>
-                  )}
+                  {tp.tip && <p className="text-xs text-primary/80 mt-1">💡 {tp.tip}</p>}
                 </div>
               ))}
             </div>
@@ -292,16 +338,16 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
             {data.costs.map((c) => (
               <div key={c.label} className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">{c.label}</span>
-                <span className="font-semibold text-foreground">{c.amount}</span>
+                <span className="font-semibold text-foreground">{dual(c.amount)}</span>
               </div>
             ))}
             <div className="border-t border-border pt-2 mt-2 flex justify-between items-center">
               <span className="font-bold text-foreground">{t(language, "total")}</span>
-              <span className="text-lg font-extrabold gradient-text">{data.total}</span>
+              <span className="text-lg font-extrabold gradient-text">{dual(data.total)}</span>
             </div>
             <div className="flex justify-between items-center text-xs text-muted-foreground">
-              <span>{t(language, "minBudget")}: {data.minBudget}</span>
-              <span>{t(language, "maxBudget")}: {data.maxBudget}</span>
+              <span>{t(language, "minBudget")}: {dual(data.minBudget)}</span>
+              <span>{t(language, "maxBudget")}: {dual(data.maxBudget)}</span>
             </div>
             <div className="flex items-start gap-2 mt-2 p-3 rounded-xl bg-amber-50/80 border border-amber-200/50">
               <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
@@ -328,7 +374,7 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           </Section>
         )}
 
-        {/* Travel Insights (AI) */}
+        {/* Travel Insights */}
         {data.travelInsights && data.travelInsights.length > 0 && (
           <Section icon={Star} title="Travel Insights">
             <ul className="space-y-1">
@@ -337,7 +383,6 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           </Section>
         )}
 
-        {/* Web Insights (Firecrawl) */}
         <TravelInsights destination={data.destination} language={language} />
 
         {/* Download */}

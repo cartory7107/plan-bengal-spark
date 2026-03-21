@@ -8,15 +8,20 @@ import Footer from "@/components/Footer";
 import { generateDynamicItinerary } from "@/lib/travelApi";
 import type { Itinerary, FormData } from "@/lib/generateItinerary";
 import { toast } from "sonner";
+import { detectUserCurrency } from "@/hooks/useCurrencyRates";
 
 const Index = () => {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [loading, setLoading] = useState(false);
   const [language, setLanguage] = useState("English");
+  const [displayCurrency, setDisplayCurrency] = useState(() => detectUserCurrency());
+  const [originalCurrency, setOriginalCurrency] = useState("USD");
   const resultRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (form: FormData) => {
     setLoading(true);
+    setOriginalCurrency(form.currency);
+    setDisplayCurrency(form.currency);
     try {
       const result = await generateDynamicItinerary(form);
       setItinerary(result);
@@ -38,7 +43,13 @@ const Index = () => {
       <TravelForm onSubmit={handleSubmit} loading={loading} language={language} />
       {itinerary && (
         <div ref={resultRef}>
-          <ItineraryResult data={itinerary} language={language} />
+          <ItineraryResult
+            data={itinerary}
+            language={language}
+            originalCurrency={originalCurrency}
+            displayCurrency={displayCurrency}
+            onCurrencyChange={setDisplayCurrency}
+          />
         </div>
       )}
       <Footer language={language} />
