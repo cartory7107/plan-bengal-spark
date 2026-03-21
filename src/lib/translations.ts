@@ -115,6 +115,8 @@ const en: Record<TranslationKey, string> = {
   discoverPlaces: "Discover Places",
   nearbyHotels: "Nearby Hotels",
   nearbyAttractions: "Tourist Attractions",
+  travelInsights: "Travel Insights",
+  searchInsights: "Search Tips & Guides",
 };
 
 const bn: Record<TranslationKey, string> = {
