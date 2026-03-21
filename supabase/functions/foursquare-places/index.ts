@@ -5,69 +5,79 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const OTM_BASE = 'https://api.opentripmap.com/0.1/en/places';
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const FOURSQUARE_API_KEY = Deno.env.get('FOURSQUARE_API_KEY');
-    if (!FOURSQUARE_API_KEY) {
-      throw new Error('FOURSQUARE_API_KEY is not configured');
+    const { near, query, categories, limit = 10 } = await req.json();
+
+    if (!near) {
+      throw new Error('Missing "near" parameter');
     }
 
-    const { query, near, categories, limit = 10 } = await req.json();
+    // Step 1: Geocode the location name
+    const geoUrl = `${OTM_BASE}/geoname?name=${encodeURIComponent(near)}&apikey=5ae2e3f221c38a28845f05b6aeb0ae296e38d61398d2ec1a01cee068`;
+    console.log('Geocoding:', near);
+    const geoRes = await fetch(geoUrl);
+    const geoText = await geoRes.text();
 
-    const params = new URLSearchParams({
-      limit: String(limit),
-      sort: 'RELEVANCE',
-    });
-
-    if (query) params.set('query', query);
-    if (near) params.set('near', near);
-    if (categories) params.set('categories', categories);
-
-    // Try new places-api endpoint first (no Bearer prefix)
-    const newUrl = `https://places-api.foursquare.com/places/search?${params.toString()}`;
-    console.log('Trying new API:', newUrl);
-
-    let response = await fetch(newUrl, {
-      headers: {
-        'Authorization': FOURSQUARE_API_KEY,
-        'Accept': 'application/json',
-        'X-Places-Api-Version': '2025-06-17',
-      },
-    });
-
-    let responseText = await response.text();
-    console.log('New API status:', response.status);
-
-    // If new API fails, try with Bearer prefix
-    if (!response.ok) {
-      console.log('Retrying new API with Bearer prefix...');
-      response = await fetch(newUrl, {
-        headers: {
-          'Authorization': `Bearer ${FOURSQUARE_API_KEY}`,
-          'Accept': 'application/json',
-          'X-Places-Api-Version': '2025-06-17',
-        },
-      });
-      responseText = await response.text();
-      console.log('Bearer attempt status:', response.status);
+    if (!geoRes.ok) {
+      throw new Error(`Geocoding failed [${geoRes.status}]: ${geoText}`);
     }
 
-    if (!response.ok) {
-      throw new Error(`Foursquare API error [${response.status}]: ${responseText}`);
+    const geo = JSON.parse(geoText);
+    const { lat, lon } = geo;
+
+    if (!lat || !lon) {
+      throw new Error(`Could not geocode "${near}"`);
     }
 
-    const data = JSON.parse(responseText);
-    const places = transformPlaces(data.results || []);
+    // Step 2: Fetch nearby places by radius
+    // Determine kinds filter based on request
+    let kinds = 'interesting_places';
+    if (categories === '19014' || (query && query.toLowerCase().includes('hotel'))) {
+      kinds = 'accomodations';
+    } else if (query && (query.toLowerCase().includes('tourist') || query.toLowerCase().includes('landmark') || query.toLowerCase().includes('attraction'))) {
+      kinds = 'cultural,architecture,historic,natural,religion,museums';
+    }
+
+    const radius = 10000; // 10km
+    const placesUrl = `${OTM_BASE}/radius?radius=${radius}&lon=${lon}&lat=${lat}&kinds=${kinds}&limit=${limit}&format=json&apikey=5ae2e3f221c38a28845f05b6aeb0ae296e38d61398d2ec1a01cee068`;
+    console.log('Fetching places:', placesUrl);
+
+    const placesRes = await fetch(placesUrl);
+    const placesText = await placesRes.text();
+
+    if (!placesRes.ok) {
+      throw new Error(`Places API failed [${placesRes.status}]: ${placesText}`);
+    }
+
+    const rawPlaces = JSON.parse(placesText);
+
+    // Step 3: Get details for each place (name, etc.)
+    const places = rawPlaces
+      .filter((p: any) => p.name && p.name.trim() !== '')
+      .map((place: any) => ({
+        id: place.xid || String(place.osm),
+        name: place.name,
+        address: '',
+        city: near,
+        country: '',
+        lat: place.point?.lat || null,
+        lng: place.point?.lon || null,
+        categories: place.kinds ? place.kinds.split(',').slice(0, 3) : [],
+        distance: place.dist ? Math.round(place.dist) : undefined,
+      }));
 
     return new Response(JSON.stringify({ places }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Foursquare places error:', error);
+    console.error('Places error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
@@ -75,17 +85,3 @@ serve(async (req) => {
     });
   }
 });
-
-function transformPlaces(results: any[]) {
-  return results.map((place: any) => ({
-    id: place.fsq_id || place.id,
-    name: place.name,
-    address: place.location?.formatted_address || place.location?.address || '',
-    city: place.location?.locality || '',
-    country: place.location?.country || '',
-    lat: place.geocodes?.main?.latitude,
-    lng: place.geocodes?.main?.longitude,
-    categories: (place.categories || []).map((c: any) => c.name),
-    distance: place.distance,
-  }));
-}
