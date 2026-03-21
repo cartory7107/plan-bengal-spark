@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -27,14 +26,14 @@ const Index = () => {
     <div className="relative min-h-screen">
       <AnimatedBackground />
       <Navbar language={language} onLanguageChange={setLanguage} />
-      <HeroSection />
-      <TravelForm onSubmit={handleSubmit} loading={loading} />
+      <HeroSection language={language} />
+      <TravelForm onSubmit={handleSubmit} loading={loading} language={language} />
       {itinerary && (
         <div ref={resultRef}>
-          <ItineraryResult data={itinerary} />
+          <ItineraryResult data={itinerary} language={language} />
         </div>
       )}
-      <Footer />
+      <Footer language={language} />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { Plane, MessageCircle, Mail } from "lucide-react";
+import { t } from "@/lib/translations";
 
-const Footer = () => (
+const Footer = ({ language = "English" }: { language?: string }) => (
   <footer className="section-padding-sm border-t border-border/50">
     <div className="container max-w-4xl mx-auto text-center space-y-6">
       <a href="#" className="inline-flex items-center gap-2.5 group">
@@ -13,7 +14,7 @@ const Footer = () => (
       </a>
 
       <p className="text-sm text-muted-foreground">
-        First AI Travel Planning Assistant from Bangladesh
+        {t(language, "footerTagline")}
       </p>
 
       <div className="flex items-center justify-center gap-4">
@@ -36,7 +37,7 @@ const Footer = () => (
       </div>
 
       <p className="text-xs text-muted-foreground pt-4">
-        Made with ❤️ by <span className="font-semibold text-foreground">AL-AMIN JISAN</span>
+        {t(language, "madeBy")} <span className="font-semibold text-foreground">AL-AMIN JISAN</span>
       </p>
     </div>
   </footer>

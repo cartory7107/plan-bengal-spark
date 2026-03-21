@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plane, Globe } from "lucide-react";
+import { t } from "@/lib/translations";
 
 const LANGUAGES = [
   "English","Bangla","Hindi","Urdu","Arabic","Spanish","French","German","Chinese",
@@ -54,7 +55,7 @@ const Navbar = ({ language = "English", onLanguageChange }: NavbarProps) => {
             href="#planner"
             className="gradient-bg text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
           >
-            Start Planning
+            {t(language, "startPlanning")}
           </a>
         </div>
       </div>
