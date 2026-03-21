@@ -1,10 +1,10 @@
 import {
   MapPin, Hotel, Utensils, Star, DollarSign, PartyPopper, Eye, Lightbulb,
   Cloud, Backpack, Download, FileText, FileSpreadsheet, Image, AlertTriangle,
-  Navigation, Thermometer, Droplets, Wind, Shield, Clock, Users, Route
+  Navigation, Thermometer, Droplets, Wind, Shield, Clock, Users, Route, Ticket
 } from "lucide-react";
 import { t } from "@/lib/translations";
-import type { Itinerary, HotelCard, RestaurantCard, AttractionCard, TransportEstimate, WeatherDay } from "@/lib/generateItinerary";
+import type { Itinerary, HotelCard, RestaurantCard, AttractionCard, TransportEstimate, WeatherDay, TicketPrice } from "@/lib/generateItinerary";
 import NearbyPlaces from "@/components/NearbyPlaces";
 import TravelInsights from "@/components/TravelInsights";
 
