@@ -32,9 +32,9 @@ serve(async (req) => {
 
     const response = await fetch(fsqUrl, {
       headers: {
-        'Authorization': FOURSQUARE_API_KEY,
+        'Authorization': `Bearer ${FOURSQUARE_API_KEY}`,
         'Accept': 'application/json',
-        'Foursquare-Version': '20250101',
+        'X-Places-Api-Version': '2025-06-17',
       },
     });
 
