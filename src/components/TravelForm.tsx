@@ -9,6 +9,7 @@ const LANGUAGES = [
 ];
 
 interface FormData {
+  from: string;
   destination: string;
   days: number;
   season: string;
