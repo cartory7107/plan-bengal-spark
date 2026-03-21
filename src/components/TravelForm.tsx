@@ -136,11 +136,22 @@ const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
                 <DollarSign className="w-4 h-4 text-primary" />
                 {t(language, "budgetLabel")}
               </label>
-              <input type="number" min={1} value={form.budget}
-                onChange={(e) => set("budget", e.target.value)}
-                className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                placeholder={t(language, "budgetPlaceholder")}
-              />
+              <div className="flex gap-2">
+                <select
+                  value={form.currency}
+                  onChange={(e) => set("currency", e.target.value)}
+                  className="rounded-xl border border-border bg-white/70 px-3 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 min-w-[100px]"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.symbol} {c.code}</option>
+                  ))}
+                </select>
+                <input type="number" min={1} value={form.budget}
+                  onChange={(e) => set("budget", e.target.value)}
+                  className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder={t(language, "budgetPlaceholder")}
+                />
+              </div>
             </div>
           </div>
 

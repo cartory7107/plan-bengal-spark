@@ -185,7 +185,8 @@ export function generateItinerary(form: FormData): Itinerary {
   const localTravel = Math.round(userBudget * 0.05);
   const total = transportCost + hotelCost + foodCost + ticketCost + emergency + localTravel;
 
-  const fmt = (n: number) => `$${n.toLocaleString()}`;
+  const currencyInfo = CURRENCIES.find(c => c.code === form.currency) ?? CURRENCIES[0];
+  const fmt = (n: number) => `${currencyInfo.symbol}${n.toLocaleString()}`;
 
   // Hotel suggestions
   const hotelSuggestions: HotelCard[] = [
