@@ -8,34 +8,24 @@
   :root {
     --background: 140 20% 98%;
     --foreground: 160 30% 10%;
-
     --card: 0 0% 100%;
     --card-foreground: 160 30% 10%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 160 30% 10%;
-
     --primary: 152 60% 42%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 150 30% 94%;
     --secondary-foreground: 160 30% 15%;
-
     --muted: 140 15% 93%;
     --muted-foreground: 160 10% 45%;
-
     --accent: 160 50% 90%;
     --accent-foreground: 160 40% 18%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 150 20% 88%;
     --input: 150 20% 88%;
     --ring: 152 60% 42%;
-
     --radius: 0.75rem;
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -44,19 +34,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Custom tokens */
-    --glass-bg: 0 0% 100% / 0.6;
-    --glass-border: 0 0% 100% / 0.3;
-    --gradient-start: 152 60% 42%;
-    --gradient-end: 170 55% 50%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -64,30 +46,15 @@
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/60 backdrop-blur-xl border border-white/30 shadow-lg;
-  }
-  .glass-card-solid {
-    @apply bg-white/80 backdrop-blur-xl border border-white/40 shadow-xl;
-  }
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500;
-  }
-  .gradient-bg {
-    @apply bg-gradient-to-br from-primary to-teal-500;
-  }
-  .gradient-bg-soft {
-    @apply bg-gradient-to-br from-green-50 via-emerald-50/50 to-teal-50;
-  }
-  .section-padding {
-    @apply py-20 md:py-28 px-4 md:px-6;
-  }
-  .section-padding-sm {
-    @apply py-12 md:py-16 px-4 md:px-6;
-  }
+  .glass-card { @apply bg-white/60 backdrop-blur-xl border border-white/30 shadow-lg; }
+  .glass-card-solid { @apply bg-white/80 backdrop-blur-xl border border-white/40 shadow-xl; }
+  .gradient-text { @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500; }
+  .gradient-bg { @apply bg-gradient-to-br from-primary to-teal-500; }
+  .gradient-bg-soft { @apply bg-gradient-to-br from-green-50 via-emerald-50/50 to-teal-50; }
+  .section-padding { @apply py-20 md:py-28 px-4 md:px-6; }
+  .section-padding-sm { @apply py-12 md:py-16 px-4 md:px-6; }
 }
 
-/* Animated floating orbs */
 @keyframes float-slow {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33% { transform: translate(30px, -40px) scale(1.05); }
@@ -109,14 +76,11 @@
 .orb-3 { animation: float-fast 18s ease-in-out infinite; }
 .orb-4 { animation: float-slow 22s ease-in-out infinite reverse; }
 
-/* Scroll reveal */
 @keyframes reveal-up {
   from { opacity: 0; transform: translateY(24px); filter: blur(4px); }
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-.reveal {
-  animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+.reveal { animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .reveal-d1 { animation-delay: 80ms; }
 .reveal-d2 { animation-delay: 160ms; }
 .reveal-d3 { animation-delay: 240ms; }

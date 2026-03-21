@@ -9,7 +9,7 @@ const Footer = ({ language = "English" }: { language?: string }) => (
           <Plane className="w-5 h-5 text-primary-foreground" />
         </div>
         <span className="text-lg font-bold tracking-tight text-foreground">
-          Trip<span className="gradient-text">Budget</span> AI
+          Cartory <span className="gradient-text">Travel</span> AI
         </span>
       </a>
 
@@ -18,17 +18,13 @@ const Footer = ({ language = "English" }: { language?: string }) => (
       </p>
 
       <div className="flex items-center justify-center gap-4">
-        <a
-          href="https://wa.me/"
-          target="_blank"
-          rel="noopener noreferrer"
+        <a href="https://wa.me/" target="_blank" rel="noopener noreferrer"
           className="glass-card rounded-full p-3 transition-all duration-200 hover:shadow-lg active:scale-95"
           aria-label="WhatsApp Support"
         >
           <MessageCircle className="w-5 h-5 text-primary" />
         </a>
-        <a
-          href="mailto:support@tripbudgetai.com"
+        <a href="mailto:support@cartorytravel.ai"
           className="glass-card rounded-full p-3 transition-all duration-200 hover:shadow-lg active:scale-95"
           aria-label="Email Support"
         >

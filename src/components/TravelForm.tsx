@@ -2,19 +2,7 @@ import { useState, useRef } from "react";
 import { MapPin, Calendar, DollarSign, Users, Bus, Hotel, Utensils, Sparkles, Search } from "lucide-react";
 import { WORLD_DESTINATIONS } from "@/data/destinations";
 import { t } from "@/lib/translations";
-
-interface FormData {
-  from: string;
-  destination: string;
-  days: number;
-  season: string;
-  budget: string;
-  travelType: string;
-  transport: string;
-  hotel: string;
-  food: string;
-  language: string;
-}
+import type { FormData } from "@/lib/generateItinerary";
 
 interface Props {
   onSubmit: (data: FormData) => void;
@@ -33,18 +21,13 @@ const SelectGroup = ({ icon: Icon, label, value, onChange, options }: {
     </label>
     <div className="flex flex-wrap gap-2">
       {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          onClick={() => onChange(o.value)}
+        <button key={o.value} type="button" onClick={() => onChange(o.value)}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 active:scale-95 ${
             value === o.value
               ? "gradient-bg text-primary-foreground shadow-md shadow-primary/20"
               : "glass-card hover:bg-white/80 text-foreground"
           }`}
-        >
-          {o.label}
-        </button>
+        >{o.label}</button>
       ))}
     </div>
   </div>
@@ -63,10 +46,7 @@ const AutocompleteField = ({ label, value, onChange, placeholder, inputRef, isAc
     </label>
     <div className="relative">
       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-      <input
-        ref={inputRef}
-        type="text"
-        value={value}
+      <input ref={inputRef} type="text" value={value}
         onChange={(e) => { onChange(e.target.value); onActivate(); }}
         onFocus={onActivate}
         onBlur={() => setTimeout(onDeactivate, 200)}
@@ -77,10 +57,7 @@ const AutocompleteField = ({ label, value, onChange, placeholder, inputRef, isAc
     {isActive && suggestions.length > 0 && (
       <div className="absolute z-20 top-full left-0 right-0 mt-1 glass-card-solid rounded-xl overflow-hidden shadow-xl max-h-64 overflow-y-auto">
         {suggestions.map((d) => (
-          <button
-            key={d}
-            type="button"
-            onMouseDown={() => onSelect(d)}
+          <button key={d} type="button" onMouseDown={() => onSelect(d)}
             className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-primary/10 transition-colors flex items-center gap-2"
           >
             <MapPin className="w-3.5 h-3.5 text-primary/60 shrink-0" />
@@ -94,18 +71,9 @@ const AutocompleteField = ({ label, value, onChange, placeholder, inputRef, isAc
 
 const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
   const [form, setForm] = useState<FormData>({
-    from: "",
-    destination: "",
-    days: 3,
-    season: "winter",
-    budget: "low",
-    travelType: "solo",
-    transport: "auto",
-    hotel: "auto",
-    food: "local",
-    language: "English",
+    from: "", destination: "", days: 3, season: "winter", budget: "500",
+    travelType: "solo", transport: "auto", hotel: "auto", food: "local", language: "English",
   });
-
   const [activeField, setActiveField] = useState<"from" | "destination" | null>(null);
   const fromRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -128,55 +96,51 @@ const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
           <p className="text-muted-foreground">{t(language, "formSubtitle")}</p>
         </div>
 
-        <form
-          onSubmit={(e) => { e.preventDefault(); onSubmit({ ...form, language }); }}
+        <form onSubmit={(e) => { e.preventDefault(); onSubmit({ ...form, language }); }}
           className="glass-card-solid rounded-3xl p-6 md:p-10 space-y-8"
         >
           {/* From & To */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <AutocompleteField
-              label={t(language, "fromLabel")}
-              value={form.from}
-              onChange={(v) => set("from", v)}
-              placeholder={t(language, "fromPlaceholder")}
-              inputRef={fromRef}
-              isActive={activeField === "from"}
-              onActivate={() => setActiveField("from")}
-              onDeactivate={() => setActiveField(null)}
+            <AutocompleteField label={t(language, "fromLabel")} value={form.from}
+              onChange={(v) => set("from", v)} placeholder={t(language, "fromPlaceholder")}
+              inputRef={fromRef} isActive={activeField === "from"}
+              onActivate={() => setActiveField("from")} onDeactivate={() => setActiveField(null)}
               suggestions={activeField === "from" ? filteredDestinations : []}
               onSelect={(v) => { set("from", v); setActiveField(null); }}
             />
-            <AutocompleteField
-              label={t(language, "toLabel")}
-              value={form.destination}
-              onChange={(v) => set("destination", v)}
-              placeholder={t(language, "toPlaceholder")}
-              inputRef={inputRef}
-              isActive={activeField === "destination"}
-              onActivate={() => setActiveField("destination")}
-              onDeactivate={() => setActiveField(null)}
+            <AutocompleteField label={t(language, "toLabel")} value={form.destination}
+              onChange={(v) => set("destination", v)} placeholder={t(language, "toPlaceholder")}
+              inputRef={inputRef} isActive={activeField === "destination"}
+              onActivate={() => setActiveField("destination")} onDeactivate={() => setActiveField(null)}
               suggestions={activeField === "destination" ? filteredDestinations : []}
               onSelect={(v) => { set("destination", v); setActiveField(null); }}
             />
           </div>
 
-          {/* Days */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Calendar className="w-4 h-4 text-primary" />
-              {t(language, "tripDuration")}: <span className="gradient-text">{form.days} {form.days === 1 ? t(language, "day") : t(language, "days")}</span>
-            </label>
-            <input
-              type="range"
-              min={1}
-              max={7}
-              value={form.days}
-              onChange={(e) => set("days", +e.target.value)}
-              className="w-full accent-primary h-2 rounded-full"
-              style={{ accentColor: "hsl(152, 60%, 42%)" }}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground font-medium">
-              <span>1 {t(language, "day")}</span><span>7 {t(language, "days")}</span>
+          {/* Days & Budget - text inputs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Calendar className="w-4 h-4 text-primary" />
+                {t(language, "tripDuration")}
+              </label>
+              <input type="number" min={1} max={365} value={form.days}
+                onChange={(e) => set("days", Math.max(1, Math.min(365, +e.target.value || 1)))}
+                className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                placeholder="1 – 365"
+              />
+              <p className="text-xs text-muted-foreground">{form.days} {form.days === 1 ? t(language, "day") : t(language, "days")}</p>
+            </div>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <DollarSign className="w-4 h-4 text-primary" />
+                {t(language, "budgetLabel")}
+              </label>
+              <input type="number" min={1} value={form.budget}
+                onChange={(e) => set("budget", e.target.value)}
+                className="w-full rounded-xl border border-border bg-white/70 px-4 py-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                placeholder={t(language, "budgetPlaceholder")}
+              />
             </div>
           </div>
 
@@ -186,14 +150,7 @@ const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
               { value: "summer", label: t(language, "summer") },
               { value: "newyear", label: t(language, "newYear") },
               { value: "eid", label: t(language, "eid") },
-            ]}
-          />
-
-          <SelectGroup icon={DollarSign} label={t(language, "budgetLabel")} value={form.budget} onChange={(v) => set("budget", v)}
-            options={[
-              { value: "low", label: t(language, "lowBudget") },
-              { value: "standard", label: t(language, "standard") },
-              { value: "premium", label: t(language, "premium") },
+              { value: "custom", label: t(language, "custom") },
             ]}
           />
 
@@ -208,18 +165,21 @@ const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
 
           <SelectGroup icon={Bus} label={t(language, "transportLabel")} value={form.transport} onChange={(v) => set("transport", v)}
             options={[
+              { value: "auto", label: t(language, "autoSuggest") },
               { value: "bus", label: t(language, "bus") },
               { value: "train", label: t(language, "train") },
               { value: "flight", label: t(language, "flight") },
-              { value: "auto", label: t(language, "autoSuggest") },
+              { value: "car", label: t(language, "car") },
             ]}
           />
 
           <SelectGroup icon={Hotel} label={t(language, "hotelLabel")} value={form.hotel} onChange={(v) => set("hotel", v)}
             options={[
               { value: "budget", label: t(language, "budgetHotel") },
-              { value: "seaview", label: t(language, "seaView") },
+              { value: "standard", label: t(language, "standardHotel") },
+              { value: "premium", label: t(language, "premiumHotel") },
               { value: "luxury", label: t(language, "luxury") },
+              { value: "historic", label: t(language, "historicHotel") },
               { value: "auto", label: t(language, "bestValue") },
             ]}
           />
@@ -232,9 +192,7 @@ const TravelForm = ({ onSubmit, loading, language = "English" }: Props) => {
             ]}
           />
 
-          <button
-            type="submit"
-            disabled={loading}
+          <button type="submit" disabled={loading}
             className="w-full gradient-bg text-primary-foreground font-bold text-lg py-4 rounded-2xl shadow-xl shadow-primary/25 transition-all duration-200 hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none flex items-center justify-center gap-2.5"
           >
             {loading ? (
