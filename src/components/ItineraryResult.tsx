@@ -72,15 +72,15 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="glass-card rounded-xl p-3 text-center">
               <p className="text-xs text-muted-foreground">{t(language, "temperature")}</p>
-              <p className="text-lg font-bold gradient-text">{data.weather.temperature}</p>
+              <p className="text-lg font-bold gradient-text">{weather.temperature}</p>
             </div>
             <div className="glass-card rounded-xl p-3 text-center">
               <p className="text-xs text-muted-foreground">{t(language, "rainChance")}</p>
-              <p className="text-lg font-bold text-foreground">{data.weather.rainChance}</p>
+              <p className="text-lg font-bold text-foreground">{weather.rainChance}</p>
             </div>
             <div className="glass-card rounded-xl p-3 text-center">
               <p className="text-xs text-muted-foreground">{t(language, "weatherWarning")}</p>
-              <p className="text-xs font-medium text-foreground leading-relaxed">{data.weather.warning}</p>
+              <p className="text-xs font-medium text-foreground leading-relaxed">{weather.warning}</p>
             </div>
           </div>
         </Section>
