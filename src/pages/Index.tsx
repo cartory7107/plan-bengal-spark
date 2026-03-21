@@ -1,16 +1,41 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useRef } from "react";
+import AnimatedBackground from "@/components/AnimatedBackground";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import TravelForm from "@/components/TravelForm";
+import ItineraryResult, { type Itinerary } from "@/components/ItineraryResult";
+import Footer from "@/components/Footer";
+import { generateItinerary } from "@/lib/generateItinerary";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
+  const [loading, setLoading] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const handleSubmit = async (form: any) => {
+    setLoading(true);
+    // Simulate AI processing
+    await new Promise((r) => setTimeout(r, 1500));
+    const result = generateItinerary(form);
+    setItinerary(result);
+    setLoading(false);
+    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="relative min-h-screen">
+      <AnimatedBackground />
+      <Navbar />
+      <HeroSection />
+      <TravelForm onSubmit={handleSubmit} loading={loading} />
+      {itinerary && (
+        <div ref={resultRef}>
+          <ItineraryResult data={itinerary} />
+        </div>
+      )}
+      <Footer />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
