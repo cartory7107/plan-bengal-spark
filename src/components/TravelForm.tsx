@@ -9,6 +9,7 @@ const LANGUAGES = [
 ];
 
 interface FormData {
+  from: string;
   destination: string;
   days: number;
   season: string;
@@ -55,6 +56,7 @@ const SelectGroup = ({ icon: Icon, label, value, onChange, options }: {
 
 const TravelForm = ({ onSubmit, loading }: Props) => {
   const [form, setForm] = useState<FormData>({
+    from: "",
     destination: "",
     days: 3,
     season: "winter",
@@ -66,12 +68,13 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
     language: "English",
   });
 
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeField, setActiveField] = useState<"from" | "destination" | null>(null);
+  const fromRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Only show suggestions when user has typed something
-  const filteredDestinations = form.destination.length >= 1
-    ? WORLD_DESTINATIONS.filter(d => d.toLowerCase().includes(form.destination.toLowerCase())).slice(0, 8)
+  const currentQuery = activeField === "from" ? form.from : form.destination;
+  const filteredDestinations = currentQuery.length >= 1
+    ? WORLD_DESTINATIONS.filter(d => d.toLowerCase().includes(currentQuery.toLowerCase())).slice(0, 8)
     : [];
 
   const set = <K extends keyof FormData>(key: K, val: FormData[K]) =>
@@ -91,40 +94,79 @@ const TravelForm = ({ onSubmit, loading }: Props) => {
           onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}
           className="glass-card-solid rounded-3xl p-6 md:p-10 space-y-8"
         >
-          {/* Destination */}
-          <div className="space-y-2 relative">
-            <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <MapPin className="w-4 h-4 text-primary" />
-              Where are you traveling?
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-              <input
-                ref={inputRef}
-                type="text"
-                value={form.destination}
-                onChange={(e) => { set("destination", e.target.value); setShowSuggestions(true); }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder="Type any city or destination worldwide..."
-                className="w-full rounded-xl border border-border bg-white/70 pl-10 pr-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-              />
-            </div>
-            {showSuggestions && filteredDestinations.length > 0 && (
-              <div className="absolute z-20 top-full left-0 right-0 mt-1 glass-card-solid rounded-xl overflow-hidden shadow-xl max-h-64 overflow-y-auto">
-                {filteredDestinations.map((d) => (
-                  <button
-                    key={d}
-                    type="button"
-                    onMouseDown={() => { set("destination", d); setShowSuggestions(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-primary/10 transition-colors flex items-center gap-2"
-                  >
-                    <MapPin className="w-3.5 h-3.5 text-primary/60 shrink-0" />
-                    {d}
-                  </button>
-                ))}
+          {/* From & To */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* From */}
+            <div className="space-y-2 relative">
+              <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <MapPin className="w-4 h-4 text-primary" />
+                From (Departure)
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  ref={fromRef}
+                  type="text"
+                  value={form.from}
+                  onChange={(e) => { set("from", e.target.value); setActiveField("from"); }}
+                  onFocus={() => setActiveField("from")}
+                  onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                  placeholder="Where are you starting from?"
+                  className="w-full rounded-xl border border-border bg-white/70 pl-10 pr-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+                />
               </div>
-            )}
+              {activeField === "from" && filteredDestinations.length > 0 && (
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 glass-card-solid rounded-xl overflow-hidden shadow-xl max-h-64 overflow-y-auto">
+                  {filteredDestinations.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onMouseDown={() => { set("from", d); setActiveField(null); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-primary/10 transition-colors flex items-center gap-2"
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-primary/60 shrink-0" />
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* To */}
+            <div className="space-y-2 relative">
+              <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <MapPin className="w-4 h-4 text-primary" />
+                To (Destination)
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={form.destination}
+                  onChange={(e) => { set("destination", e.target.value); setActiveField("destination"); }}
+                  onFocus={() => setActiveField("destination")}
+                  onBlur={() => setTimeout(() => setActiveField(null), 200)}
+                  placeholder="Where do you want to go?"
+                  className="w-full rounded-xl border border-border bg-white/70 pl-10 pr-4 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+                />
+              </div>
+              {activeField === "destination" && filteredDestinations.length > 0 && (
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 glass-card-solid rounded-xl overflow-hidden shadow-xl max-h-64 overflow-y-auto">
+                  {filteredDestinations.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onMouseDown={() => { set("destination", d); setActiveField(null); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-primary/10 transition-colors flex items-center gap-2"
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-primary/60 shrink-0" />
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Days */}
