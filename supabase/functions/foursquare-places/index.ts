@@ -18,7 +18,6 @@ serve(async (req) => {
 
     const { query, near, categories, limit = 10 } = await req.json();
 
-    // Build Foursquare Places API URL (new endpoint)
     const params = new URLSearchParams({
       limit: String(limit),
       sort: 'RELEVANCE',
@@ -28,16 +27,14 @@ serve(async (req) => {
     if (near) params.set('near', near);
     if (categories) params.set('categories', categories);
 
-    // Use the new places-api host
-    const fsqUrl = `https://places-api.foursquare.com/places/search?${params.toString()}`;
+    const fsqUrl = `https://api.foursquare.com/v3/places/search?${params.toString()}`;
 
     console.log('Fetching:', fsqUrl);
 
     const response = await fetch(fsqUrl, {
       headers: {
-        'Authorization': `Bearer ${FOURSQUARE_API_KEY}`,
+        'Authorization': FOURSQUARE_API_KEY,
         'Accept': 'application/json',
-        'X-Places-Api-Version': '2025-06-17',
       },
     });
 
@@ -45,29 +42,7 @@ serve(async (req) => {
     console.log('Response status:', response.status);
 
     if (!response.ok) {
-      // Fallback: try the legacy v3 endpoint
-      console.log('New API failed, trying legacy v3...');
-      const legacyUrl = `https://api.foursquare.com/v3/places/search?${params.toString()}`;
-      
-      const legacyResponse = await fetch(legacyUrl, {
-        headers: {
-          'Authorization': FOURSQUARE_API_KEY,
-          'Accept': 'application/json',
-        },
-      });
-
-      const legacyText = await legacyResponse.text();
-      console.log('Legacy response status:', legacyResponse.status);
-
-      if (!legacyResponse.ok) {
-        throw new Error(`Foursquare API error [${legacyResponse.status}]: ${legacyText}`);
-      }
-
-      const data = JSON.parse(legacyText);
-      const places = transformPlaces(data.results || []);
-      return new Response(JSON.stringify({ places }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      throw new Error(`Foursquare API error [${response.status}]: ${responseText}`);
     }
 
     const data = JSON.parse(responseText);
