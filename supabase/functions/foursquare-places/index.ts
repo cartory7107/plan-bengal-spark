@@ -27,19 +27,34 @@ serve(async (req) => {
     if (near) params.set('near', near);
     if (categories) params.set('categories', categories);
 
-    const fsqUrl = `https://api.foursquare.com/v3/places/search?${params.toString()}`;
+    // Try new places-api endpoint first (no Bearer prefix)
+    const newUrl = `https://places-api.foursquare.com/places/search?${params.toString()}`;
+    console.log('Trying new API:', newUrl);
 
-    console.log('Fetching:', fsqUrl);
-
-    const response = await fetch(fsqUrl, {
+    let response = await fetch(newUrl, {
       headers: {
         'Authorization': FOURSQUARE_API_KEY,
         'Accept': 'application/json',
+        'X-Places-Api-Version': '2025-06-17',
       },
     });
 
-    const responseText = await response.text();
-    console.log('Response status:', response.status);
+    let responseText = await response.text();
+    console.log('New API status:', response.status);
+
+    // If new API fails, try with Bearer prefix
+    if (!response.ok) {
+      console.log('Retrying new API with Bearer prefix...');
+      response = await fetch(newUrl, {
+        headers: {
+          'Authorization': `Bearer ${FOURSQUARE_API_KEY}`,
+          'Accept': 'application/json',
+          'X-Places-Api-Version': '2025-06-17',
+        },
+      });
+      responseText = await response.text();
+      console.log('Bearer attempt status:', response.status);
+    }
 
     if (!response.ok) {
       throw new Error(`Foursquare API error [${response.status}]: ${responseText}`);
