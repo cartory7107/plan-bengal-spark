@@ -110,6 +110,9 @@ const ItineraryResult = ({ data, language = "English" }: { data: Itinerary; lang
           </div>
         </Section>
 
+        {/* Foursquare Nearby Places */}
+        <NearbyPlaces destination={data.destination} language={language} />
+
         <div className="grid sm:grid-cols-2 gap-4">
           <Section icon={Utensils} title={t(language, "restaurantsTitle")}>
             <ul className="space-y-1">{data.restaurants.map((r, i) => <li key={i} className="text-sm text-muted-foreground">• {r}</li>)}</ul>
