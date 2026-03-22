@@ -34,7 +34,7 @@ const Footer = ({ language = "English" }: { language?: string }) => (
       </div>
 
       <p className="text-xs text-muted-foreground pt-4">
-        {t(language, "madeBy")} <span className="font-semibold text-foreground">AL-AMIN JISAN</span>
+        {t(language, "madeBy")} <Link to="/who-made-this" className="font-semibold text-foreground hover:text-primary transition-colors underline-offset-2 hover:underline">AL-AMIN JISAN</Link>
       </p>
     </div>
   </footer>
