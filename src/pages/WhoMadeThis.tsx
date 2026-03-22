@@ -46,9 +46,12 @@ const WhoMadeThis = () => {
         <RevealSection className="mt-8 grid gap-6 rounded-3xl border border-border bg-white/80 p-6 shadow-sm md:grid-cols-[220px,1fr] md:p-8">
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
             <img
-              src="/placeholder.svg"
-              alt="Creator profile placeholder"
-              className="h-40 w-40 rounded-2xl border border-border bg-white object-cover p-3"
+              src="/al-amin-jisan.jpg"
+              alt="Al Amin Jisan portrait"
+              className="h-40 w-40 rounded-2xl border border-border bg-white object-cover"
+              onError={(event) => {
+                event.currentTarget.src = "/placeholder.svg";
+              }}
             />
             <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-900">
               <User className="h-3.5 w-3.5" />
