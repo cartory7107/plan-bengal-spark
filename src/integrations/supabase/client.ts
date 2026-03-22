@@ -5,6 +5,33 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    'Missing Supabase configuration. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your environment.'
+  );
+}
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const resilientFetch: typeof fetch = async (input, init) => {
+  const isEdgeFunctionRequest =
+    (typeof input === 'string' && input.includes('/functions/v1/')) ||
+    (typeof Request !== 'undefined' && input instanceof Request && input.url.includes('/functions/v1/'));
+
+  try {
+    return await fetch(input, init);
+  } catch (error) {
+    if (!isEdgeFunctionRequest) {
+      throw error;
+    }
+
+    // Retry once for transient network failures that often surface as
+    // "Failed to send a request to the Edge Function".
+    await wait(350);
+    return fetch(input, init);
+  }
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -13,5 +40,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+  },
+  global: {
+    fetch: resilientFetch,
+  },
 });

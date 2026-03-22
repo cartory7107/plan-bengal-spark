@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { normalizeEdgeFunctionError } from '@/lib/edgeFunctionErrors';
 
 type FirecrawlResponse<T = any> = {
   success: boolean;
@@ -24,7 +25,7 @@ export const firecrawlApi = {
     const { data, error } = await supabase.functions.invoke('firecrawl-scrape', {
       body: { url, options },
     });
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: normalizeEdgeFunctionError(error, 'Failed to scrape URL') };
     return data;
   },
 
@@ -32,7 +33,7 @@ export const firecrawlApi = {
     const { data, error } = await supabase.functions.invoke('firecrawl-search', {
       body: { query, options },
     });
-    if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: normalizeEdgeFunctionError(error, 'Failed to run search') };
     return data;
   },
 };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MapPin, Hotel, Compass, Loader2, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { t } from "@/lib/translations";
+import { normalizeEdgeFunctionError } from "@/lib/edgeFunctionErrors";
 
 interface Place {
   id: string;
@@ -85,7 +86,7 @@ const NearbyPlaces = ({ destination, language = "English" }: NearbyPlacesProps) 
       setLoaded(true);
     } catch (err) {
       console.error('Failed to fetch places:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch nearby places');
+      setError(normalizeEdgeFunctionError(err, 'Failed to fetch nearby places'));
     } finally {
       setLoading(false);
     }

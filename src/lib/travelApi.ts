@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Itinerary, FormData, WeatherInfo } from "./generateItinerary";
 import { generateFallbackItinerary } from "./generateItinerary";
+import { normalizeEdgeFunctionError } from "./edgeFunctionErrors";
 
 export async function fetchWeather(city: string): Promise<WeatherInfo> {
   try {
@@ -21,11 +22,12 @@ export async function fetchWeather(city: string): Promise<WeatherInfo> {
       country: data.country,
     };
   } catch (err) {
-    console.error("Weather API error:", err);
+    const errorMessage = normalizeEdgeFunctionError(err, "Weather data unavailable.");
+    console.error("Weather API error:", errorMessage, err);
     return {
       temperature: "N/A",
       rainChance: "N/A",
-      warning: "Weather data unavailable. Check your connection.",
+      warning: `${errorMessage} Showing fallback weather data.`,
     };
   }
 }
@@ -87,7 +89,8 @@ export async function fetchAITravelPlan(form: FormData): Promise<Itinerary> {
       ticketPrices: plan.ticketPrices ?? [],
     };
   } catch (err) {
-    console.error("AI Travel Planner error:", err);
+    const errorMessage = normalizeEdgeFunctionError(err, "AI travel planner failed.");
+    console.error("AI Travel Planner error:", errorMessage, err);
     // Return fallback static data
     return generateFallbackItinerary(form);
   }
