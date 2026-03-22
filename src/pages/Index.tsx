@@ -5,6 +5,7 @@ import HeroSection from "@/components/HeroSection";
 import TravelForm from "@/components/TravelForm";
 import ItineraryResult from "@/components/ItineraryResult";
 import Footer from "@/components/Footer";
+import AIChatBubble from "@/components/AIChatBubble";
 import { generateDynamicItinerary } from "@/lib/travelApi";
 import type { Itinerary, FormData } from "@/lib/generateItinerary";
 import { toast } from "sonner";
