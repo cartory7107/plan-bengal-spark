@@ -32,42 +32,62 @@ serve(async (req) => {
           .map((item) => ({ role: item.role, content: item.text }))
       : [];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...normalizedHistory,
-          { role: "user", content: message },
-        ],
-      }),
-    });
+    const models = ["google/gemini-2.5-flash", "openai/gpt-4.1-mini"];
+    let data: unknown = null;
+    let lastErrorStatus = 500;
+    let lastErrorText = "";
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
+    for (const model of models) {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...normalizedHistory,
+            { role: "user", content: message },
+          ],
+        }),
+      });
 
+      if (!response.ok) {
+        lastErrorStatus = response.status;
+        lastErrorText = await response.text();
+        console.error(`AI gateway error for ${model}:`, response.status, lastErrorText);
+
+        if (response.status === 429) {
+          break;
+        }
+
+        continue;
+      }
+
+      data = await response.json();
+      break;
+    }
+
+    if (!data) {
       return new Response(
         JSON.stringify({
           error:
-            response.status === 429
+            lastErrorStatus === 429
               ? "Rate limit exceeded. Please try again in a moment."
-              : "AI assistant is temporarily unavailable.",
+              : "AI assistant is temporarily unavailable. Please try again shortly.",
+          details: lastErrorText || undefined,
         }),
         {
-          status: response.status,
+          status: lastErrorStatus,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
     }
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content;
+    const reply = (data as { choices?: Array<{ message?: { content?: string } }> }).choices?.[0]?.message
+      ?.content;
 
     if (!reply || typeof reply !== "string") {
       throw new Error("AI did not return a valid reply");
