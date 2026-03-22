@@ -67,8 +67,8 @@ const WhoMadeThis = () => {
           <section className="sr">
             <div className="glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
               {/* Avatar placeholder */}
-              <div className="shrink-0 w-36 h-36 md:w-44 md:h-44 rounded-2xl gradient-bg flex items-center justify-center shadow-xl shadow-primary/20">
-                <span className="text-5xl md:text-6xl font-extrabold text-primary-foreground select-none">AJ</span>
+              <div className="shrink-0 w-36 h-36 md:w-44 md:h-44 rounded-2xl overflow-hidden shadow-xl shadow-primary/20">
+                <img src={founderPhoto} alt="Al Amin Jisan - Founder of Cartory BD" className="w-full h-full object-cover" />
               </div>
               <div className="text-center md:text-left space-y-3 flex-1">
                 <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Al Amin Jisan</h2>
