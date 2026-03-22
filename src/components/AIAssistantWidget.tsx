@@ -92,7 +92,7 @@ const AIAssistantWidget = () => {
     try {
       const reply = await getAssistantChatReply(
         trimmed,
-        nextMessages.map(({ role, text }) => ({ role, text })),
+        messages.map(({ role, text }) => ({ role, text })),
       );
 
       const assistantMessage: ChatMessage = {
@@ -104,12 +104,14 @@ const AIAssistantWidget = () => {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Assistant reply failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "";
+      const replyText = errorMessage.trim() || fallbackReply;
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: fallbackReply,
+          text: replyText,
         },
       ]);
     } finally {
