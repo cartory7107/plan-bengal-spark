@@ -54,6 +54,7 @@ const Index = () => {
         </div>
       )}
       <Footer language={language} />
+      <AIChatBubble />
     </div>
   );
 };
