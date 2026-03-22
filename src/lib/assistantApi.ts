@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeEdgeFunctionError } from "./edgeFunctionErrors";
 
 type MessageRole = "assistant" | "user";
 
@@ -16,7 +17,7 @@ export const getAssistantChatReply = async (message: string, history: AssistantM
   });
 
   if (error) {
-    throw new Error(error.message || "Failed to get assistant response");
+    throw new Error(normalizeEdgeFunctionError(error, "Failed to get assistant response"));
   }
 
   if (!data?.reply || typeof data.reply !== "string") {

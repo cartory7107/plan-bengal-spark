@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeEdgeFunctionError } from "@/lib/edgeFunctionErrors";
 
 interface CurrencyRates {
   rates: Record<string, number>;
@@ -55,7 +56,7 @@ export function useCurrencyRates(baseCurrency = "USD"): CurrencyRates {
         }
       } catch (err: any) {
         console.error("Currency rates fetch error:", err);
-        if (!cancelled) setError(err.message);
+        if (!cancelled) setError(normalizeEdgeFunctionError(err, "Failed to load currency rates"));
       } finally {
         if (!cancelled) setLoading(false);
       }
