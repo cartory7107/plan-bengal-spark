@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, MessageCircle, Sparkles, Globe, Cpu, Rocket, Users, MapPin, Code, Lightbulb, Heart } from "lucide-react";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import founderPhoto from "@/assets/founder-photo.png";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
