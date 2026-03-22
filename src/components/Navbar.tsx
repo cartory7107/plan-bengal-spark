@@ -45,11 +45,6 @@ const Navbar = ({ language = "English", onLanguageChange }: NavbarProps) => {
               {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
-          <a href="/who-made-this"
-            className="hidden rounded-full border border-border bg-white/80 px-4 py-2 text-xs font-semibold tracking-wide text-foreground transition hover:bg-white md:inline-flex"
-          >
-            WHO MADE THIS
-          </a>
           <a href="#planner"
             className="gradient-bg text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-95"
           >
