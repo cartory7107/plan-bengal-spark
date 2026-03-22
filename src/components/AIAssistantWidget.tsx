@@ -3,6 +3,7 @@ import { Bot, MessageCircle, Send, Sparkles, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getAssistantChatReply } from "@/lib/assistantApi";
 import { cn } from "@/lib/utils";
 
 type MessageRole = "assistant" | "user";
@@ -13,52 +14,15 @@ interface ChatMessage {
   text: string;
 }
 
-const cannedReplies: Array<{ triggers: string[]; reply: string }> = [
-  {
-    triggers: ["budget", "cheap", "save", "money"],
-    reply:
-      "Totally! Share your destination + trip length, and I'll give a budget-friendly daily plan with transport, food, and stay ideas.",
-  },
-  {
-    triggers: ["romantic", "couple", "honeymoon"],
-    reply:
-      "Love that vibe ✨ I can build a romantic itinerary with sunset spots, cozy dinners, and memorable experiences.",
-  },
-  {
-    triggers: ["solo", "alone"],
-    reply:
-      "Solo trips are amazing. I can suggest safe neighborhoods, social activities, and a flexible day-by-day solo route.",
-  },
-  {
-    triggers: ["family", "kids", "child"],
-    reply:
-      "Great choice! I can focus on family-friendly attractions, slower pacing, and kid-safe food/activity options.",
-  },
-  {
-    triggers: ["hi", "hello", "hey"],
-    reply:
-      "Hey! I'm your travel assistant. Ask me for destination ideas, budget tips, or a full day-by-day travel game plan.",
-  },
-];
-
-const defaultReply =
-  "I can help with destinations, budget breakdowns, best travel months, and personalized trip plans. Tell me where you want to go 🌍";
-
 const introMessage: ChatMessage = {
   id: "intro",
   role: "assistant",
   text:
-    "Hi! I'm your AI Bubble Assistant 🤖 Ask me anything about your trip and I'll help you plan fast.",
+    "Hi! I'm your AI Bubble Assistant 🤖 You can ask me travel questions or any general question.",
 };
 
-const getAssistantReply = (message: string) => {
-  const text = message.toLowerCase();
-  const matched = cannedReplies.find(({ triggers }) =>
-    triggers.some((trigger) => text.includes(trigger)),
-  );
-
-  return matched?.reply ?? defaultReply;
-};
+const fallbackReply =
+  "I hit a temporary issue while generating a reply. Please try again in a moment.";
 
 const AIAssistantWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,6 +31,7 @@ const AIAssistantWidget = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [animatedAssistantText, setAnimatedAssistantText] = useState(introMessage.text);
   const scrollViewportRef = useRef<HTMLDivElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const latestAssistantMessage = useMemo(
     () => [...messages].reverse().find((message) => message.role === "assistant"),
@@ -94,21 +59,21 @@ const AIAssistantWidget = () => {
   }, [latestAssistantMessage]);
 
   useEffect(() => {
-    if (!scrollViewportRef.current) {
+    if (!isOpen || !scrollViewportRef.current || !bottomRef.current) {
       return;
     }
 
-    scrollViewportRef.current.scrollTo({
-      top: scrollViewportRef.current.scrollHeight,
+    bottomRef.current.scrollIntoView({
       behavior: "smooth",
+      block: "end",
     });
-  }, [messages, isTyping]);
+  }, [messages, isTyping, animatedAssistantText, isOpen]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmed = value.trim();
-    if (!trimmed) {
+    if (!trimmed || isTyping) {
       return;
     }
 
@@ -118,13 +83,18 @@ const AIAssistantWidget = () => {
       text: trimmed,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const nextMessages = [...messages, userMessage];
+
+    setMessages(nextMessages);
     setValue("");
     setIsTyping(true);
 
-    const reply = getAssistantReply(trimmed);
+    try {
+      const reply = await getAssistantChatReply(
+        trimmed,
+        nextMessages.map(({ role, text }) => ({ role, text })),
+      );
 
-    window.setTimeout(() => {
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
@@ -132,8 +102,19 @@ const AIAssistantWidget = () => {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Assistant reply failed:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text: fallbackReply,
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 900);
+    }
   };
 
   return (
@@ -210,6 +191,8 @@ const AIAssistantWidget = () => {
                   <span className="typing-dots rounded-full bg-secondary px-3 py-2">Assistant is typing</span>
                 </div>
               )}
+
+              <div ref={bottomRef} />
             </div>
           </ScrollArea>
 
@@ -218,10 +201,10 @@ const AIAssistantWidget = () => {
               <Input
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
-                placeholder="Ask about destination, budget, food..."
+                placeholder="Ask anything... travel, coding, life, etc."
                 className="border-white/60 bg-white/70"
               />
-              <Button type="submit" size="icon" className="shrink-0">
+              <Button type="submit" size="icon" className="shrink-0" disabled={isTyping}>
                 <Send className="h-4 w-4" />
               </Button>
             </div>
