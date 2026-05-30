@@ -72,7 +72,7 @@ const products = [
     sell: 3290,
     stock: "In stock",
     featured: true,
-    image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80",
+    sticker: { mark: "WATCH", title: "Smart Pro", glow: "from-sky-400 via-blue-500 to-cyan-300", halo: "bg-sky-400/35" },
     tags: ["SEO title", "Meta tags", "Gallery", "Video"],
   },
   {
@@ -83,7 +83,7 @@ const products = [
     sell: 2250,
     stock: "Low stock",
     featured: true,
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=900&q=80",
+    sticker: { mark: "AUDIO", title: "AeroPods", glow: "from-violet-400 via-sky-500 to-blue-500", halo: "bg-blue-500/30" },
     tags: ["Published", "Cloudinary", "Gallery", "Meta"],
   },
   {
@@ -94,7 +94,7 @@ const products = [
     sell: 1090,
     stock: "In stock",
     featured: false,
-    image: "https://images.unsplash.com/photo-1565814636199-ae8133055c1c?auto=format&fit=crop&w=900&q=80",
+    sticker: { mark: "GLOW", title: "LED Kit", glow: "from-cyan-300 via-sky-500 to-fuchsia-400", halo: "bg-cyan-400/30" },
     tags: ["Unpublish ready", "Variant", "Video", "SEO"],
   },
 ];
@@ -165,6 +165,21 @@ const SectionHeader = ({ eyebrow, title, description }: { eyebrow: string; title
 const GlassCard = ({ className, children }: { className?: string; children: ReactNode }) => (
   <div className={cn("rounded-[2rem] border border-white/60 bg-white/75 p-5 shadow-[0_24px_80px_-40px_rgba(15,23,42,.45)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/70", className)}>
     {children}
+  </div>
+);
+
+const ProductSticker = ({ mark, title, glow, halo }: { mark: string; title: string; glow: string; halo: string }) => (
+  <div className="relative flex h-52 w-full items-center justify-center overflow-hidden rounded-[1.75rem] bg-transparent">
+    <div className={cn("absolute h-36 w-36 rounded-full blur-3xl", halo)} />
+    <div className="absolute inset-x-8 top-8 h-16 rounded-full bg-white/45 blur-2xl dark:bg-white/10" />
+    <div className="relative rotate-[-4deg] text-center drop-shadow-[0_18px_35px_rgba(14,165,233,0.35)]">
+      <div className={cn("bg-gradient-to-r bg-clip-text text-5xl font-black uppercase tracking-[-0.08em] text-transparent md:text-6xl", glow)}>
+        {mark}
+      </div>
+      <div className="mx-auto mt-2 w-fit rounded-full bg-white/80 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-slate-700 shadow-lg shadow-sky-500/10 backdrop-blur dark:bg-slate-950/70 dark:text-sky-100">
+        {title}
+      </div>
+    </div>
   </div>
 );
 
@@ -334,7 +349,7 @@ const Index = () => {
           <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-3">
             {products.map((product) => (
               <GlassCard key={product.slug} className="overflow-hidden p-3">
-                <img src={product.image} alt={product.name} className="h-52 w-full rounded-[1.5rem] object-cover" />
+                <ProductSticker {...product.sticker} />
                 <div className="p-3">
                   <div className="mb-3 flex items-center justify-between">
                     <Badge className="rounded-full bg-sky-100 text-sky-700 hover:bg-sky-100">{product.category}</Badge>
